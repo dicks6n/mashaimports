@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{% if active_category %}{{ active_category.name }}{% else %}Products{% endif %} — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>{{ products|length }} product line{{ products|length|pluralize }}</span>
+    <h1 data-reveal>{% if active_category %}{{ active_category.name }}{% else %}Source <em>anything</em>.{% endif %}</h1>
+    <p class="lead" data-reveal>{% if active_category %}{{ active_category.tagline }}.{% else %}Indicative factory prices, linked to the markets that supply them. Don't see it? We'll find it.{% endif %}</p>
+    <form class="search" style="margin-top:34px" data-reveal>
+      <input name="q" value="{{ q }}" placeholder="What are you looking for?" aria-label="Search products">
+      {% if active_category %}<input type="hidden" name="category" value="{{ active_category.slug }}">{% endif %}
+      <button class="btn">Search <span class="arrow">→</span></button>
+    </form>
+    <div class="chips" data-reveal>
+      <a href="{% url 'catalog:product_list' %}" class="chip{% if not active_category %} active{% endif %}">Everything</a>
+      {% for c in categories %}<a href="?category={{ c.slug }}" class="chip{% if c == active_category %} active{% endif %}">{{ c.name }}</a>{% endfor %}
+    </div>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="wrap">
+    {% if products %}
+      <div class="product-grid" data-stagger>{% for p in products %}{% include "partials/product_card.html" %}{% endfor %}</div>
+    {% else %}
+      <div class="empty"><h3>Nothing listed for “{{ q }}” yet.</h3><p>That's fine — we source products that aren't listed every day.</p><a href="{% url 'sourcing:new_request' %}" class="btn btn-red">Source “{{ q|default:'it' }}” for ${{ SOURCING_FEE|floatformat:0 }} <span class="arrow">→</span></a></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

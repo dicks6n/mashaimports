@@ -1,0 +1,3 @@
+Django>=5.1
+Pillow>=10.0
+stripe>=10.0   # only needed when STRIPE_SECRET_KEY is set

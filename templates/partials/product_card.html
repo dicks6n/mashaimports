@@ -1,0 +1,12 @@
+<a href="{{ p.get_absolute_url }}" class="product">
+  {% include "partials/media.html" with obj=p %}
+  <div class="body">
+    <span class="cat-label">{{ p.category.name }}</span>
+    <h3>{{ p.name }}</h3>
+    <p>{{ p.summary|truncatechars:110 }}</p>
+    <div class="row">
+      <span class="price">${{ p.price_from|floatformat:2 }} <small>– ${{ p.price_to|floatformat:2 }} / unit</small></span>
+      <span class="muted">MOQ {{ p.moq }}</span>
+    </div>
+  </div>
+</a>

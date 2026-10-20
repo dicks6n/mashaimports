@@ -1,0 +1,29 @@
+{% extends "hub/base.html" %}
+{% block title %}Payments{% endblock %}
+{% block heading %}<small>Business</small>Payments{% endblock %}
+{% block content %}
+<form class="hub-toolbar" method="get">
+  <select name="status" onchange="this.form.submit()" class="hub-select"><option value="">Any status</option>{% for k, v in statuses %}<option value="{{ k }}"{% if k == status %} selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+  <select name="kind" onchange="this.form.submit()" class="hub-select"><option value="">All types</option>{% for k, v in kinds %}<option value="{{ k }}"{% if k == kind %} selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+  <span class="spacer"></span>
+  <span class="hub-muted">{{ totals.n }} payment{{ totals.n|pluralize }} · <b style="color:var(--gold-2);font:500 22px var(--serif)">${{ totals.t|default:0|floatformat:2 }}</b></span>
+</form>
+<div class="hub-card hub-table-wrap" style="padding:8px 14px">
+  <table class="hub-table">
+    <thead><tr><th>Date</th><th>Customer</th><th>For</th><th>Amount</th><th>Via</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for p in page %}
+      <tr>
+        <td class="hub-muted">{{ p.paid_at|default:p.created|date:"M j, Y H:i" }}</td>
+        <td><a class="link" href="{% url 'hub:customer_detail' p.user.pk %}">{{ p.user.get_full_name|default:p.user.username }}</a></td>
+        <td>{{ p.description|truncatechars:50 }}</td>
+        <td><b>${{ p.amount|floatformat:2 }}</b></td>
+        <td class="hub-muted">{{ p.provider }}</td>
+        <td>{% if p.status == "paid" %}<span class="hub-pill good">Paid</span>{% elif p.status == "failed" %}<span class="hub-pill bad">Failed</span>{% else %}<span class="hub-muted">Pending</span>{% endif %}</td>
+      </tr>
+    {% empty %}<tr><td colspan="6" class="hub-empty">No payments.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "hub/_pager.html" %}
+{% endblock %}

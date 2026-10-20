@@ -1,0 +1,93 @@
+{% extends "hub/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block heading %}<small>{% now "l, j F" %}</small>你好, {{ user.first_name|default:user.username }}{% endblock %}
+{% block content %}
+<div class="hub-kpis">
+  <div class="hub-kpi"><span>Revenue · 30 days</span><b>${{ kpi.revenue30|floatformat:0 }}</b><small>${{ kpi.revenue_all|floatformat:0 }} all time</small></div>
+  <div class="hub-kpi"><a href="{% url 'hub:orders' %}?status=paid"><span>Orders to start</span><b>{{ kpi.orders_queued }}</b><small>{{ kpi.orders_active }} in progress</small></a></div>
+  <div class="hub-kpi"><a href="{% url 'hub:service_orders' %}?status=confirmed"><span>Bookings to arrange</span><b>{{ kpi.services_open }}</b><small>interpreters, pickups, inspections…</small></a></div>
+  <div class="hub-kpi"><a href="{% url 'support:inbox' %}"><span>Unread chats</span><b{% if kpi.chats_unread %} style="color:#f2b8a0"{% endif %}>{{ kpi.chats_unread }}</b><small>{{ kpi.customers }} customer{{ kpi.customers|pluralize }} · {{ kpi.customers_new }} new this month · {{ kpi.passes }} active pass{{ kpi.passes|pluralize:"es" }}</small></a></div>
+</div>
+
+<div class="hub-grid two">
+  <section class="hub-card hub-chart">
+    <h2>Revenue, last 14 days <span class="hub-muted" style="font:400 13px var(--sans)">${{ chart.total|floatformat:0 }} total</span></h2>
+    <svg viewBox="0 0 {{ chart.w }} {{ chart.h }}" role="img" aria-label="Revenue per day for the last 14 days, ${{ chart.total|floatformat:0 }} in total">
+      <g class="grid">{% for t in chart.ticks %}<line x1="{{ chart.pad_l }}" x2="{{ chart.w }}" y1="{{ t.y }}" y2="{{ t.y }}"/><text x="{{ chart.pad_l|add:'-8' }}" y="{{ t.y }}" dy="4" text-anchor="end">{{ t.label }}</text>{% endfor %}</g>
+      {% for b in chart.bars %}
+        <g class="col" data-label="{{ b.label }}" data-value="{{ b.value|floatformat:2 }}">
+          <rect class="hit" x="{{ b.hit_x }}" y="{{ chart.plot_top }}" width="{{ b.hit_w }}" height="{{ chart.plot_h }}"/>
+          {% if b.path %}<path class="bar" d="{{ b.path }}"/>{% endif %}
+          <text class="xl" x="{{ b.cx }}" y="{{ chart.label_y }}" text-anchor="middle">{{ b.short }}</text>
+        </g>
+      {% endfor %}
+    </svg>
+    <details><summary>Show as table</summary>
+      <table>{% for b in chart.bars %}<tr><td>{{ b.label }}</td><td style="text-align:right">${{ b.value|floatformat:2 }}</td></tr>{% endfor %}</table>
+    </details>
+    <div class="hub-chart-tip" id="chart-tip"></div>
+  </section>
+
+  <section class="hub-card">
+    <h2>Quick actions</h2>
+    <div class="hub-actions">
+      <a class="btn btn-sm" href="{% url 'hub:resource_add' 'markets' %}">+ Add market</a>
+      <a class="btn btn-sm" href="{% url 'hub:resource_add' 'products' %}">+ Add product</a>
+      <a class="btn btn-sm" href="{% url 'hub:resource_add' 'hotels' %}">+ Add hotel</a>
+      <a class="btn btn-ghost btn-sm" href="{% url 'support:inbox' %}">💬 Open chats</a>
+      <a class="btn btn-ghost btn-sm" href="{% url 'hub:tools' %}">Run tools</a>
+      <a class="btn btn-ghost btn-sm" href="{% url 'hub:settings' %}">Chat &amp; WhatsApp</a>
+    </div>
+    <h2 style="margin-top:24px">Data health</h2>
+    <div class="hub-health">
+      <a href="{% url 'hub:resource_list' 'markets' %}?f=unverified"><span>Markets with unverified location</span><b>{{ health.unverified }} / {{ health.markets }}</b></a>
+      <a href="{% url 'hub:resource_list' 'markets' %}?f=nophoto"><span>Markets without a photo</span><b>{{ health.nophoto }}</b></a>
+      <a href="{% url 'hub:resource_list' 'markets' %}?f=nohotels"><span>Markets without hotels</span><b>{{ health.nohotels }}</b></a>
+      <a href="{% url 'hub:settings' %}"><span>WhatsApp in chat pop-up</span><b>{% if site.whatsapp_url and site.show_whatsapp %}On{% else %}Not set{% endif %}</b></a>
+    </div>
+  </section>
+</div>
+
+<div class="hub-grid half" style="margin-top:20px">
+  <section class="hub-card">
+    <h2>Orders waiting to start <a href="{% url 'hub:orders' %}?status=paid">All →</a></h2>
+    {% for o in queued %}
+      <a class="hub-list-item" href="{% url 'hub:order_detail' o.reference %}"><span class="hub-pill gold">{{ o.reference }}</span><span class="grow"><b>{{ o.title }}</b><small>{{ o.user.get_full_name|default:o.user.username }} · {{ o.quantity }} → {{ o.destination }}</small></span><span class="hub-muted">{{ o.paid_at|timesince }} ago</span></a>
+    {% empty %}<p class="hub-empty">Nothing waiting. 🎉</p>{% endfor %}
+  </section>
+  <section class="hub-card">
+    <h2>Latest chats <a href="{% url 'support:inbox' %}">Inbox →</a></h2>
+    {% for c in chats %}
+      <a class="hub-list-item" href="{% url 'support:inbox_thread' c.pk %}"><span class="hub-avatar">{{ c.customer_name|slice:":1"|upper }}</span><span class="grow"><b>{{ c.customer_name }}</b><small>{{ c.last_preview }}</small></span>{% if c.staff_unread %}<span class="hub-pill bad">{{ c.staff_unread }} new</span>{% else %}<span class="hub-muted">{{ c.last_message_at|timesince }}</span>{% endif %}</a>
+    {% empty %}<p class="hub-empty">No chats yet.</p>{% endfor %}
+  </section>
+  <section class="hub-card">
+    <h2>Bookings to arrange <a href="{% url 'hub:service_orders' %}?status=confirmed">All →</a></h2>
+    {% for s in services %}
+      <a class="hub-list-item" href="{% url 'hub:service_order_detail' s.pk %}"><span class="grow"><b>{{ s.service.name }}{% if s.quantity > 1 %} × {{ s.quantity }}{% endif %}</b><small>{{ s.user.get_full_name|default:s.user.username }} · {{ s.city|default:"" }} · {{ s.date|date:"M j" }}</small></span><span>${{ s.amount|floatformat:0 }}</span></a>
+    {% empty %}<p class="hub-empty">No bookings waiting.</p>{% endfor %}
+  </section>
+  <section class="hub-card">
+    <h2>New customers <a href="{% url 'hub:customers' %}">All →</a></h2>
+    {% for u in signups %}
+      <a class="hub-list-item" href="{% url 'hub:customer_detail' u.pk %}"><span class="hub-avatar">{{ u.first_name|default:u.username|slice:":1"|upper }}</span><span class="grow"><b>{{ u.get_full_name|default:u.username }}</b><small>{{ u.email }}</small></span><span class="hub-muted">{{ u.date_joined|date:"M j" }}</span></a>
+    {% empty %}<p class="hub-empty">No customers yet.</p>{% endfor %}
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(() => {
+  const tip = document.getElementById("chart-tip");
+  document.querySelectorAll(".hub-chart g.col").forEach((g) => {
+    g.addEventListener("pointermove", (e) => {
+      tip.innerHTML = "";
+      const b = document.createElement("b"); b.textContent = "$" + Number(g.dataset.value).toLocaleString(undefined, { minimumFractionDigits: 2 });
+      tip.append(g.dataset.label, b);
+      tip.style.left = Math.min(e.clientX + 14, innerWidth - 150) + "px"; tip.style.top = (e.clientY - 56) + "px"; tip.style.opacity = 1;
+    });
+    g.addEventListener("pointerleave", () => { tip.style.opacity = 0; });
+  });
+})();
+</script>
+{% endblock %}

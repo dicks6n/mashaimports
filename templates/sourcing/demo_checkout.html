@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Checkout — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="wrap" style="max-width:620px">
+    <span class="eyebrow" data-reveal>Secure checkout</span>
+    <h1 data-reveal style="font-size:clamp(40px,6vw,72px)">Confirm <em>payment</em></h1>
+    <div class="summary-box" data-reveal="scale" style="margin-top:30px">
+      <div class="line"><span>Item</span><b>{{ payment.description }}</b></div>
+      <div class="total"><span class="muted">Total</span><b>${{ payment.amount|floatformat:2 }}</b></div>
+      <form method="post" style="margin-top:24px">{% csrf_token %}
+        <button class="btn btn-red btn-block">Pay ${{ payment.amount|floatformat:2 }} <span class="arrow">→</span></button>
+      </form>
+      <p class="muted" style="font-size:12.5px;margin-top:16px">⚠ Demo mode: no card is charged. Add your Stripe keys to <code>.env</code> to take real payments.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

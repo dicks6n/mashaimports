@@ -1,0 +1,62 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Hub{% endblock %} · {{ SITE_NAME }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <link rel="stylesheet" href="{% static 'support/chat.css' %}">
+  <link rel="stylesheet" href="{% static 'hub/hub.css' %}">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b8382c'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='serif'%3E%E6%BA%90%3C/text%3E%3C/svg%3E">
+</head>
+<body class="hub-body">
+{% with url=request.resolver_match.url_name key=request.resolver_match.kwargs.key %}
+<aside class="hub-side" id="hub-side">
+  <a href="{% url 'hub:dashboard' %}" class="hub-brand"><span class="brand-seal">源</span><span>{{ SITE_NAME }}<small>Hub</small></span></a>
+  <nav>
+    <a href="{% url 'hub:dashboard' %}" class="{% if url == 'dashboard' %}on{% endif %}"><i>概</i>Dashboard</a>
+    <span class="hub-nav-h">Business</span>
+    <a href="{% url 'hub:orders' %}" class="{% if 'order' in url and 'service' not in url %}on{% endif %}"><i>源</i>Sourcing orders{% if hub_counts.orders %}<b>{{ hub_counts.orders }}</b>{% endif %}</a>
+    <a href="{% url 'hub:service_orders' %}" class="{% if 'service_order' in url %}on{% endif %}"><i>务</i>Service bookings{% if hub_counts.services %}<b>{{ hub_counts.services }}</b>{% endif %}</a>
+    <a href="{% url 'support:inbox' %}" class="{% if 'inbox' in url %}on{% endif %}"><i>聊</i>Chats{% if hub_counts.chats %}<b class="red">{{ hub_counts.chats }}</b>{% endif %}</a>
+    <a href="{% url 'hub:customers' %}" class="{% if 'customer' in url %}on{% endif %}"><i>客</i>Customers</a>
+    <a href="{% url 'hub:payments' %}" class="{% if url == 'payments' %}on{% endif %}"><i>¥</i>Payments</a>
+    <span class="hub-nav-h">Catalogue</span>
+    <a href="{% url 'hub:resource_list' 'markets' %}" class="{% if key == 'markets' %}on{% endif %}"><i>市</i>Markets</a>
+    <a href="{% url 'hub:resource_list' 'products' %}" class="{% if key == 'products' %}on{% endif %}"><i>品</i>Products</a>
+    <a href="{% url 'hub:resource_list' 'categories' %}" class="{% if key == 'categories' %}on{% endif %}"><i>类</i>Categories</a>
+    <a href="{% url 'hub:resource_list' 'hotels' %}" class="{% if key == 'hotels' %}on{% endif %}"><i>宿</i>Hotels</a>
+    <a href="{% url 'hub:resource_list' 'cities' %}" class="{% if key == 'cities' %}on{% endif %}"><i>城</i>Cities</a>
+    <span class="hub-nav-h">Settings</span>
+    <a href="{% url 'hub:resource_list' 'services' %}" class="{% if key == 'services' %}on{% endif %}"><i>价</i>Services &amp; prices</a>
+    <a href="{% url 'hub:resource_list' 'plans' %}" class="{% if key == 'plans' %}on{% endif %}"><i>证</i>Location passes</a>
+    <a href="{% url 'hub:settings' %}" class="{% if url == 'settings' %}on{% endif %}"><i>设</i>Chat &amp; WhatsApp</a>
+    <a href="{% url 'hub:tools' %}" class="{% if url == 'tools' or url == 'job' %}on{% endif %}"><i>工</i>Tools</a>
+  </nav>
+  <div class="hub-side-foot">
+    <a href="{% url 'catalog:home' %}" target="_blank" rel="noopener">View website ↗</a>
+    <a href="{% url 'admin:index' %}">Advanced admin</a>
+  </div>
+</aside>
+{% endwith %}
+<div class="hub-main">
+  <header class="hub-top">
+    <button class="hub-burger" type="button" onclick="document.body.classList.toggle('hub-nav-open')" aria-label="Menu">☰</button>
+    <div class="hub-title">{% block heading %}{% endblock %}</div>
+    <div class="hub-user">
+      <span class="hub-avatar">{{ user.first_name|default:user.username|slice:":1"|upper }}</span>
+      <span class="hub-user-name">{{ user.get_full_name|default:user.username }}</span>
+      <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="link" style="background:none;border:0;font:inherit;cursor:pointer">Sign out</button></form>
+    </div>
+  </header>
+  {% if messages %}<div class="toasts">{% for m in messages %}<div class="toast {{ m.tags }}">{{ m }}</div>{% endfor %}</div>{% endif %}
+  <main class="hub-content">{% block content %}{% endblock %}</main>
+</div>
+<div class="hub-scrim" onclick="document.body.classList.remove('hub-nav-open')"></div>
+<script src="{% static 'support/chat.js' %}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

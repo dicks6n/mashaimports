@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Hotels near China's wholesale markets — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Hotels</span>
+    <h1 data-reveal>{% if market %}Stay near <em>{{ market.name }}</em>{% elif city %}Hotels in <em>{{ city.name }}</em>{% else %}Sleep close to the <em>market</em>.{% endif %}</h1>
+    <p class="lead" data-reveal>Hotels are matched to the markets they're closest to. Book directly on Trip.com or Booking.com, or let our concierge book it for you.</p>
+    <form class="filters" data-reveal>
+      {% if market %}<input type="hidden" name="market" value="{{ market.slug }}">{% endif %}
+      <select name="city" aria-label="City" onchange="this.form.submit()">
+        <option value="">All cities</option>
+        {% for c in cities %}<option value="{{ c.slug }}"{% if c == city %} selected{% endif %}>{{ c.name }} ({{ c.n }})</option>{% endfor %}
+      </select>
+      <div class="search" style="flex:1 1 220px;max-width:none"><input name="q" value="{{ q }}" placeholder="Hotel name or brand…" aria-label="Hotel name"></div>
+      <label class="mini">Check-in<input type="date" name="checkin" value="{{ checkin|date:'Y-m-d' }}"></label>
+      <label class="mini">Check-out<input type="date" name="checkout" value="{{ checkout|date:'Y-m-d' }}"></label>
+      <label class="mini">Guests<input type="number" min="1" max="8" name="guests" value="{{ guests }}"></label>
+      <button class="btn">Search <span class="arrow">→</span></button>
+    </form>
+    {% if market %}<p data-reveal><a class="link" href="{% url 'travel:hotel_list' %}?city={{ city.slug }}">← All hotels in {{ market.city }}</a></p>{% endif %}
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="wrap">
+    {% if page.object_list %}
+      <div class="hotel-grid" data-stagger>{% for h in page.object_list %}{% include "partials/hotel_card.html" %}{% endfor %}</div>
+      {% if page.has_other_pages %}
+      <nav class="pager">
+        {% if page.has_previous %}<a class="chip" href="?{% if market %}market={{ market.slug }}&{% endif %}{% if city %}city={{ city.slug }}&{% endif %}q={{ q|urlencode }}&checkin={{ checkin|date:'Y-m-d' }}&checkout={{ checkout|date:'Y-m-d' }}&guests={{ guests }}&page={{ page.previous_page_number }}">← Previous</a>{% endif %}
+        <span class="muted">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+        {% if page.has_next %}<a class="chip" href="?{% if market %}market={{ market.slug }}&{% endif %}{% if city %}city={{ city.slug }}&{% endif %}q={{ q|urlencode }}&checkin={{ checkin|date:'Y-m-d' }}&checkout={{ checkout|date:'Y-m-d' }}&guests={{ guests }}&page={{ page.next_page_number }}">Next →</a>{% endif %}
+      </nav>
+      {% endif %}
+    {% else %}
+      <div class="empty">
+        <h3>{% if city %}We haven't listed hotels in {{ city.name }} yet.{% else %}No hotels listed yet.{% endif %}</h3>
+        <p>Search live availability instead, or ask our concierge.</p>
+      </div>
+    {% endif %}
+    {% if city_links %}
+    <div class="card" style="margin-top:40px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap" data-reveal>
+      <div><h3>Every hotel in {{ city.name }}</h3><p class="muted" style="margin:6px 0 0">Live prices for {{ checkin|date:"M j" }} – {{ checkout|date:"M j" }}, {{ guests }} guest{{ guests|pluralize }}.</p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="{{ city_links.trip }}" target="_blank" rel="noopener sponsored" class="btn">Trip.com <span class="arrow">↗</span></a>
+        <a href="{{ city_links.booking }}" target="_blank" rel="noopener sponsored" class="btn btn-ghost">Booking.com</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

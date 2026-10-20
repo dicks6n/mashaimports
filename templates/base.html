@@ -1,0 +1,92 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ SITE_NAME }} — {{ SITE_TAGLINE }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ SITE_NAME }}: we find, inspect and ship any product from China's wholesale markets. Flat ${{ SOURCING_FEE|floatformat:0 }} sourcing fee.{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <link rel="stylesheet" href="{% static 'support/chat.css' %}">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b8382c'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='serif'%3E%E6%BA%90%3C/text%3E%3C/svg%3E">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <div class="loader" aria-hidden="true"><div><span>源</span><small>{{ SITE_NAME|upper }}</small></div></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+
+  {% with url=request.resolver_match.url_name %}
+  <header class="nav">
+    <div class="wrap">
+      <a href="{% url 'catalog:home' %}" class="brand" aria-label="{{ SITE_NAME }} home">
+        <span class="brand-seal">源</span>
+        <span class="brand-name">{{ SITE_NAME }}<small>Shipping &amp; Sourcing</small></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu">☰</button>
+      <nav class="nav-links">
+        <a href="{% url 'catalog:market_list' %}" class="{% if 'market' in url %}active{% endif %}">Markets</a>
+        <a href="{% url 'catalog:product_list' %}" class="{% if 'product' in url %}active{% endif %}">Products</a>
+        <a href="{% url 'travel:hotel_list' %}" class="{% if url == 'hotel_list' %}active{% endif %}">Hotels</a>
+        <a href="{% url 'travel:trip_planner' %}" class="{% if 'trip' in url %}active{% endif %}">Trip Planner</a>
+        <a href="{% url 'travel:service_list' %}" class="{% if 'service' in url %}active{% endif %}">Services</a>
+        <a href="{% url 'sourcing:shipping' %}" class="{% if url == 'shipping' %}active{% endif %}">Shipping</a>
+        <a href="{% url 'sourcing:pricing' %}" class="{% if url == 'pricing' %}active{% endif %}">Location Pass</a>
+        {% if user.is_authenticated %}
+          {% if current_pass %}<span class="pass-chip">Pass active</span>{% endif %}
+          {% if user.is_staff %}<a href="{% url 'support:inbox' %}" class="{% if 'inbox' in url %}active{% endif %}">Inbox{% if support_unread %} <span class="pass-chip" style="border-color:var(--cinnabar);color:#f2b8a0">{{ support_unread }}</span>{% endif %}</a>{% else %}<a href="{% url 'support:chat' %}" class="{% if url == 'chat' %}active{% endif %}">Messages{% if chat_unread %} <span class="pass-chip" style="border-color:var(--cinnabar);color:#f2b8a0">{{ chat_unread }}</span>{% endif %}</a>{% endif %}
+          {% if not user.is_staff %}<a href="{% url 'accounts:dashboard' %}" class="{% if url == 'dashboard' %}active{% endif %}">My orders</a>{% else %}<a href="{% url 'hub:dashboard' %}" style="color:var(--gold)">Hub</a>{% endif %}
+          <form method="post" action="{% url 'accounts:logout' %}" style="display:inline">{% csrf_token %}<button class="link" style="background:none;border:0;font:inherit;cursor:pointer;padding:0">Sign out</button></form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}">Sign in</a>
+        {% endif %}
+        <a href="{% url 'sourcing:new_request' %}" class="btn">Source a product <span class="arrow">→</span></a>
+      </nav>
+    </div>
+  </header>
+  {% endwith %}
+
+  {% if messages %}
+  <div class="toasts">{% for m in messages %}<div class="toast {{ m.tags }}">{{ m }}</div>{% endfor %}</div>
+  {% endif %}
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <a href="{% url 'catalog:home' %}" class="brand"><span class="brand-seal">源</span><span class="brand-name">{{ SITE_NAME }}<small>Shipping &amp; Sourcing</small></span></a>
+          <p class="muted" style="max-width:36ch;margin-top:22px">Your buying office inside China's wholesale markets. We find it, inspect it and ship it to your door.</p>
+        </div>
+        <div><h4>Explore</h4><ul>
+          <li><a href="{% url 'catalog:market_list' %}">Markets</a></li>
+          <li><a href="{% url 'catalog:product_list' %}">Products</a></li>
+          <li><a href="{% url 'travel:atlas' %}">Market map</a></li>
+          <li><a href="{% url 'travel:hotel_list' %}">Hotels</a></li>
+          <li><a href="{% url 'sourcing:shipping' %}">Shipping</a></li>
+        </ul></div>
+        <div><h4>Services</h4><ul>
+          <li><a href="{% url 'sourcing:new_request' %}">Sourcing · ${{ SOURCING_FEE|floatformat:0 }}</a></li>
+          <li><a href="{% url 'sourcing:pricing' %}">Location Pass</a></li>
+          <li><a href="{% url 'travel:trip_planner' %}">Trip planner</a></li>
+          <li><a href="{% url 'travel:service_list' %}">Interpreters &amp; inspections</a></li>
+          <li><a href="{% url 'accounts:dashboard' %}">Track an order</a></li>
+        </ul></div>
+        <div><h4>Account</h4><ul>
+          {% if user.is_authenticated %}<li><a href="{% url 'accounts:dashboard' %}">Dashboard</a></li>{% else %}
+          <li><a href="{% url 'accounts:login' %}">Sign in</a></li><li><a href="{% url 'accounts:signup' %}">Create account</a></li>{% endif %}
+        </ul></div>
+      </div>
+      <div class="giant" aria-hidden="true">{{ SITE_NAME }}</div>
+      <div class="base"><span>© {% now "Y" %} {{ SITE_NAME }}. Market photos via Wikimedia Commons, credited on each page.</span><span>Hotel links may earn us a commission at no cost to you.</span></div>
+    </div>
+  </footer>
+
+  {% if request.resolver_match.app_name != "support" %}{% include "partials/chat_widget.html" %}{% endif %}
+  <script src="{% static 'js/site.js' %}" defer></script>
+  <script src="{% static 'support/chat.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

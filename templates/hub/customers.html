@@ -1,0 +1,25 @@
+{% extends "hub/base.html" %}
+{% block title %}Customers{% endblock %}
+{% block heading %}<small>Business</small>Customers <span class="hub-muted" style="font-size:16px">({{ page.paginator.count }})</span>{% endblock %}
+{% block content %}
+<div class="hub-toolbar"><form class="search" method="get"><input name="q" value="{{ q }}" placeholder="Name, username or e-mail…"><button class="btn btn-sm">Search</button></form></div>
+<div class="hub-card hub-table-wrap" style="padding:8px 14px">
+  <table class="hub-table">
+    <thead><tr><th>Customer</th><th>Joined</th><th>Orders</th><th>Total paid</th><th>Pass</th><th></th></tr></thead>
+    <tbody>
+    {% for u in page %}
+      <tr data-href="{% url 'hub:customer_detail' u.pk %}">
+        <td><b>{{ u.get_full_name|default:u.username }}</b><small>{{ u.email|default:u.username }}</small></td>
+        <td class="hub-muted">{{ u.date_joined|date:"M j, Y" }}</td>
+        <td>{{ u.orders }}</td>
+        <td>${{ u.paid|default:0|floatformat:0 }}</td>
+        <td>{% if u.pk in active_pass %}<span class="hub-pill good">Active</span>{% else %}<span class="hub-muted">—</span>{% endif %}</td>
+        <td class="act"><a class="btn btn-ghost btn-sm" href="{% url 'hub:customer_detail' u.pk %}">Open</a></td>
+      </tr>
+    {% empty %}<tr><td colspan="6" class="hub-empty">No customers found.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% with querystring="q="|add:q %}{% include "hub/_pager.html" %}{% endwith %}
+{% endblock %}
+{% block scripts %}<script>document.querySelectorAll("tr[data-href]").forEach((tr) => tr.addEventListener("click", (e) => { if (!e.target.closest("a,button")) location.href = tr.dataset.href; }));</script>{% endblock %}

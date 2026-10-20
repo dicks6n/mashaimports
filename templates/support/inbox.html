@@ -1,0 +1,92 @@
+{% extends "hub/base.html" %}
+{% block title %}Chats{% endblock %}
+{% block heading %}<small>Business</small>Customer chats{% endblock %}
+{% block content %}
+<div class="inbox">
+      <aside class="inbox-list">
+        <form class="inbox-filters" method="get">
+          <input name="q" value="{{ q }}" placeholder="Search name, e-mail or message…" aria-label="Search chats">
+          <input type="hidden" name="show" value="{{ show }}">
+          <div class="inbox-tabs">
+            <a href="?show=open" class="{% if show == 'open' %}on{% endif %}">Open</a>
+            <a href="?show=mine" class="{% if show == 'mine' %}on{% endif %}">Mine</a>
+            <a href="?show=all" class="{% if show == 'all' %}on{% endif %}">All</a>
+          </div>
+        </form>
+        <div class="inbox-items" data-inbox-items>
+          {% for c in conversations %}
+            <a class="inbox-item{% if active and c.pk == active.pk %} on{% endif %}" href="{% url 'support:inbox_thread' c.pk %}?show={{ show }}" data-conv="{{ c.pk }}">
+              <span class="av">{{ c.customer_name|slice:":1"|upper }}</span>
+              <span><b>{{ c.customer_name }}</b><small data-preview>{{ c.last_preview }}</small></span>
+              <span class="when">{{ c.last_message_at|date:"M j" }}<br><span class="unread" data-unread {% if not c.staff_unread %}hidden{% endif %}>{{ c.staff_unread }}</span></span>
+            </a>
+          {% empty %}
+            <div class="inbox-empty" style="padding:40px 20px"><b>No chats</b>When customers message you they'll appear here.</div>
+          {% endfor %}
+        </div>
+      </aside>
+
+      {% if active %}
+      <div class="inbox-thread" data-chat data-autostart="2500" data-viewer="staff"
+           data-list-url="{% url 'support:inbox_messages' active.pk %}" data-send-url="{% url 'support:inbox_send' active.pk %}">
+        <div class="chat-head">
+          <span class="seal" style="background:var(--panel-2);color:var(--gold);border:1px solid var(--line-2)">{{ active.customer_name|slice:":1"|upper }}</span>
+          <div><b>{{ active.customer_name }}</b><small style="color:var(--muted)">{{ active.customer.email|default:"no e-mail" }}</small></div>
+          <button class="btn btn-ghost" style="margin-left:auto;padding:9px 16px;font-size:12.5px" type="button" data-close-url="{% url 'support:inbox_close' active.pk %}" data-toggle-closed>{% if active.closed %}Re-open{% else %}Mark resolved{% endif %}</button>
+        </div>
+        <div class="chat-list" data-chat-list><div class="chat-empty" data-chat-empty>Loading…</div></div>
+        <form class="chat-form" data-chat-form>
+          <label class="chat-attach" title="Attach a photo or file">📎<input type="file" data-chat-file accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"></label>
+          <textarea data-chat-input rows="1" placeholder="Reply to {{ active.customer_name }}…  (Enter to send, Shift+Enter for a new line)" aria-label="Reply"></textarea>
+          <button class="chat-send" type="submit" aria-label="Send">➤</button>
+        </form>
+        <div class="chat-meta"><span data-chat-file-name></span><span data-chat-error hidden></span></div>
+      </div>
+      <aside class="inbox-side">
+        <h4>Customer</h4>
+        <div class="row"><span>Username</span><b>{{ active.customer.username }}</b></div>
+        <div class="row"><span>Joined</span><span>{{ active.customer.date_joined|date:"M j, Y" }}</span></div>
+        <div class="row"><span>Total paid</span><b>${{ paid|floatformat:0 }}</b></div>
+        <div class="row"><span>Location Pass</span><span>{% if pass and pass.is_active %}{{ pass.plan.name }} → {{ pass.expires_at|date:"M j" }}{% else %}None{% endif %}</span></div>
+        <h4>Sourcing orders</h4>
+        {% for o in orders %}<div class="row"><a href="{% url 'hub:order_detail' o.reference %}">{{ o.reference }} · {{ o.title|truncatechars:22 }}</a><span>{{ o.get_status_display|truncatechars:14 }}</span></div>
+        {% empty %}<p class="muted">None yet.</p>{% endfor %}
+        <h4>Services</h4>
+        {% for s in services %}<div class="row"><a href="{% url 'hub:service_order_detail' s.pk %}">{{ s.service.name|truncatechars:26 }}</a><span>{{ s.get_status_display|truncatechars:12 }}</span></div>
+        {% empty %}<p class="muted">None yet.</p>{% endfor %}
+        <h4>Profile</h4>
+        <p><a href="{% url 'hub:customer_detail' active.customer.pk %}">Open customer profile →</a></p>
+      </aside>
+      {% else %}
+      <div class="inbox-empty" style="grid-column: span 2"><b>Select a chat</b>Choose a conversation on the left to read and reply.</div>
+      {% endif %}
+    </div>
+<script>
+(() => {
+  const csrf = (document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/) || [])[1] || "";
+  const btn = document.querySelector("[data-toggle-closed]");
+  if (btn) btn.addEventListener("click", async () => {
+    const r = await fetch(btn.dataset.closeUrl, { method: "POST", headers: { "X-CSRFToken": csrf } });
+    if (r.ok) btn.textContent = (await r.json()).closed ? "Re-open" : "Mark resolved";
+  });
+  // Refresh unread badges on the conversation list every 8 s.
+  const items = document.querySelectorAll("[data-conv]");
+  const active = "{{ active.pk|default:'' }}";
+  setInterval(async () => {
+    try {
+      const d = await (await fetch("{% url 'support:inbox_poll' %}")).json();
+      let missing = false;
+      Object.keys(d.conversations).forEach((id) => { if (!document.querySelector(`[data-conv="${id}"]`)) missing = true; });
+      items.forEach((el) => {
+        const info = d.conversations[el.dataset.conv];
+        const badge = el.querySelector("[data-unread]");
+        if (info && el.dataset.conv !== active) {
+          badge.textContent = info.unread; badge.hidden = false; el.querySelector("[data-preview]").textContent = info.preview;
+        } else { badge.hidden = true; }
+      });
+      if (missing && !document.querySelector("[data-chat-input]:focus")) location.reload();  // a new customer wrote in
+    } catch (_) {}
+  }, 8000);
+})();
+</script>
+{% endblock %}

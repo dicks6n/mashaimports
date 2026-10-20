@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Create account — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="wrap" style="max-width:640px">
+    <span class="eyebrow" data-reveal>Create account</span>
+    <h1 data-reveal style="font-size:clamp(44px,6vw,76px)">Start <em>sourcing</em></h1>
+    <form method="post" class="card" data-reveal="scale" style="margin-top:20px">{% csrf_token %}
+      {{ form.non_field_errors }}
+      <div class="form-grid">
+        {% include "partials/field.html" with f=form.first_name full=1 %}
+        {% include "partials/field.html" with f=form.username %}
+        {% include "partials/field.html" with f=form.email %}
+        {% include "partials/field.html" with f=form.password1 full=1 %}
+        {% include "partials/field.html" with f=form.password2 full=1 %}
+      </div>
+      <button class="btn btn-red btn-block" style="margin-top:26px">Create account <span class="arrow">→</span></button>
+      <p class="muted" style="text-align:center;margin:20px 0 0">Already have one? <a class="link" href="{% url 'accounts:login' %}">Sign in</a></p>
+    </form>
+  </div>
+</section>
+{% endblock %}

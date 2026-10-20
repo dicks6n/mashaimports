@@ -1,0 +1,1 @@
+<div class="media{% if extra %} {{ extra }}{% endif %}">{% if obj.image_src %}<img src="{{ obj.image_src }}" alt="{{ obj.name }}" loading="{{ loading|default:'lazy' }}" decoding="async">{% else %}<div class="media-fallback{% if not zh %} latin{% endif %}"><span>{{ zh|default:obj.name }}</span></div>{% endif %}</div>

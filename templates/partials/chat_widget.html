@@ -1,0 +1,53 @@
+{% with ss=site_settings %}{% if not user.is_staff and ss and ss.chat_enabled or not user.is_staff and ss and ss.show_whatsapp and ss.whatsapp_url %}
+<div class="chat-widget" data-chat-widget>
+  <div class="chat-panel" data-chat-panel hidden role="dialog" aria-label="Chat with {{ SITE_NAME }}">
+    <div class="chat-head">
+      <span class="seal">源</span>
+      <div><b>{{ SITE_NAME }}</b><small>{{ ss.reply_time|default:"Usually replies within a few hours" }}</small></div>
+      <button class="close" type="button" data-chat-close aria-label="Close chat">×</button>
+    </div>
+    {% if ss.show_whatsapp and ss.whatsapp_url %}
+      <a class="chat-wa" href="{{ ss.whatsapp_url }}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 7L3 29l6.4-2c2 1.1 4.3 1.7 6.6 1.7 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.4c-2.1 0-4.1-.6-5.9-1.7l-.4-.3-3.8 1.2 1.2-3.7-.3-.4a10.4 10.4 0 0 1-1.7-5.7C5.1 9.9 10 5.1 16 5.1s10.9 4.8 10.9 10.7S22 26.4 16 26.4zm6-8c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7 0a8.8 8.8 0 0 1-4.4-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.1 1.1-1.1 2.7 1.2 3.1 1.3 3.3c.2.2 2.3 3.5 5.5 4.9 2 .9 2.8.9 3.8.8.6-.1 1.9-.8 2.2-1.5s.3-1.4.2-1.5c-.1-.2-.3-.3-.6-.4z"/></svg>
+        <span><b>Chat on WhatsApp</b><small>{{ ss.whatsapp_number }}</small></span><em>↗</em>
+      </a>
+    {% endif %}
+    {% if not ss.chat_enabled %}
+      <div class="chat-signin"><b>Message us on WhatsApp</b><p>Tap the button above to start a chat with our team.</p></div>
+    {% elif user.is_authenticated %}
+      <div data-chat data-list-url="{% url 'support:messages' %}" data-send-url="{% url 'support:send' %}" data-viewer="customer" style="display:flex;flex-direction:column;flex:1;min-height:0">
+        <div class="chat-list" data-chat-list>
+          <div class="chat-empty" data-chat-empty>
+            <b>你好 {{ user.first_name|default:user.username }} 👋</b>
+            {{ ss.chat_greeting|default:"Ask us anything: products, markets, prices, shipping or your trip to China." }}
+            <div class="chat-quick">
+              <button type="button" onclick="this.closest('[data-chat]').querySelector('textarea').value='I want to source a product: '">Source a product</button>
+              <button type="button" onclick="this.closest('[data-chat]').querySelector('textarea').value='How much would shipping cost to '">Shipping cost</button>
+              <button type="button" onclick="this.closest('[data-chat]').querySelector('textarea').value='I am planning a trip to China and need '">Plan a trip</button>
+            </div>
+          </div>
+        </div>
+        <form class="chat-form" data-chat-form>
+          <label class="chat-attach" title="Attach a photo or file">📎<input type="file" data-chat-file accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"></label>
+          <textarea data-chat-input rows="1" placeholder="Type a message…" aria-label="Message"></textarea>
+          <button class="chat-send" type="submit" aria-label="Send">➤</button>
+        </form>
+        <div class="chat-meta"><span data-chat-file-name></span><span data-chat-error hidden></span></div>
+      </div>
+    {% else %}
+      <div class="chat-signin">
+        <b>Chat with our team</b>
+        <p>Sign in or create a free account to chat with us here{% if ss.show_whatsapp and ss.whatsapp_url %}, or use WhatsApp above, no account needed{% endif %}.</p>
+        <a class="btn" href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}">Sign in</a>
+        <a class="btn btn-ghost" href="{% url 'accounts:signup' %}?next={{ request.get_full_path|urlencode }}">Create account</a>
+      </div>
+    {% endif %}
+  </div>
+  <span class="chat-hint">Chat with us</span>
+  <button class="chat-fab" type="button" data-chat-toggle aria-expanded="false" aria-label="Open chat">
+    <span class="zh-icon">聊</span><span class="x">×</span>
+    <span class="chat-badge" data-chat-badge {% if not chat_unread %}hidden{% endif %}>{{ chat_unread|default:"" }}</span>
+  </button>
+</div>
+{% endif %}
+{% endwith %}

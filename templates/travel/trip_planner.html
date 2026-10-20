@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Buying trip planner — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head" style="padding-bottom:30px">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Trip planner</span>
+    <h1 data-reveal>Plan your <em>buying trip</em>.</h1>
+    <p class="lead" data-reveal>Pick a city, the markets you want to walk and your dates. We'll build a day-by-day plan, find hotels closest to your markets and line up an interpreter and airport pickup if you want them.</p>
+  </div>
+</section>
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <form method="post" class="card" data-reveal>{% csrf_token %}
+      {{ form.non_field_errors }}
+      <div class="form-grid" style="grid-template-columns:2fr 1fr 1fr 1fr">
+        {% include "partials/field.html" with f=form.city %}
+        {% include "partials/field.html" with f=form.arrival %}
+        {% include "partials/field.html" with f=form.nights %}
+        {% include "partials/field.html" with f=form.guests %}
+      </div>
+      <div class="field" style="margin-top:26px">
+        <label>Markets to visit</label>
+        <div id="market-picks" class="picks"><p class="muted">Choose a city to see its markets.</p></div>
+        <div class="help">{{ form.markets.help_text }}</div>
+        {{ form.markets.errors }}
+      </div>
+      <button class="btn btn-red" style="margin-top:28px">Build my itinerary <span class="arrow">→</span></button>
+      {% if not user.is_authenticated %}<p class="muted" style="font-size:13px;margin-top:12px"><a class="link" href="{% url 'accounts:login' %}?next={{ request.path }}">Sign in</a> to save the plan to your dashboard.</p>{% endif %}
+    </form>
+  </div>
+</section>
+{{ selected|json_script:"selected-markets" }}
+{{ markets_by_city|json_script:"markets-by-city" }}
+<script>
+(() => {
+  const byCity = JSON.parse(document.getElementById("markets-by-city").textContent);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const selected = new Set(JSON.parse(document.getElementById("selected-markets").textContent));
+  const select = document.querySelector("#id_city");
+  const box = document.getElementById("market-picks");
+  const cityName = () => select.options[select.selectedIndex]?.text;
+  const render = () => {
+    const list = byCity[cityName()] || [];
+    if (!list.length) { box.innerHTML = '<p class="muted">Choose a city to see its markets.</p>'; return; }
+    box.innerHTML = list.map(m => `
+      <label class="pick"><input type="checkbox" name="markets" value="${m.id}" ${selected.has(String(m.id)) ? "checked" : ""}>
+      <span><b>${esc(m.name)}</b><small class="zh">${esc(m.name_zh)}</small></span></label>`).join("");
+  };
+  select.addEventListener("change", render);
+  render();
+})();
+</script>
+{% endblock %}

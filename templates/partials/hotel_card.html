@@ -1,0 +1,22 @@
+<article class="hotel">
+  {% include "partials/media.html" with obj=h zh=h.name_zh %}
+  <div class="body">
+    <div class="hotel-top">
+      {% if h.recommended %}<span class="badge gold">★ Recommended</span>{% endif %}
+      {% if h.stars %}<span class="stars" aria-label="{{ h.stars }} stars">{% for _ in "x"|rjust:h.stars %}★{% endfor %}</span>{% endif %}
+    </div>
+    <h3>{{ h.display_name }}</h3>
+    {% if h.name_zh and h.name_zh != h.display_name %}<div class="zh muted" style="font-size:14px">{{ h.name_zh }}</div>{% endif %}
+    <p class="muted">{% if h.note %}{{ h.note }}{% elif h.brand %}{{ h.brand }} · {{ h.city.name }}{% else %}{{ h.city.name }}{% endif %}</p>
+    {% if h.distance is not None and h.distance != "" %}
+      <div class="dist">{% if location_access %}◉ {{ h.distance|floatformat:1 }} km from the market{% else %}◉ Walking distance of the market{% endif %}</div>
+    {% elif h.avg_km %}
+      <div class="dist">◉ {{ h.avg_km|floatformat:1 }} km avg. to your markets</div>
+    {% endif %}
+    <div class="book">
+      <a href="{{ h.links.trip }}" target="_blank" rel="noopener sponsored" class="btn">Trip.com <span class="arrow">↗</span></a>
+      <a href="{{ h.links.booking }}" target="_blank" rel="noopener sponsored" class="btn btn-ghost">Booking.com</a>
+    </div>
+    <a class="link concierge" href="{% url 'travel:service_book' 'hotel-booking' %}?hotel={{ h.pk }}{% if checkin %}&checkin={{ checkin|date:'Y-m-d' }}&checkout={{ checkout|date:'Y-m-d' }}{% endif %}">or let us book it for you →</a>
+  </div>
+</article>

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}My orders — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head" style="padding-bottom:30px">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Dashboard</span>
+    <h1 data-reveal style="font-size:clamp(42px,6vw,84px)">你好, <em>{{ user.first_name|default:user.username }}</em>.</h1>
+    <div class="facts" data-reveal>
+      <div class="fact"><span>Sourcing orders</span><b>{{ requests|length }}</b></div>
+      <div class="fact"><span>Location Pass</span><b>{% if current_pass %}{{ current_pass.plan.name }}{% elif user.is_staff %}Staff access{% else %}None{% endif %}</b></div>
+      <div class="fact"><span>Pass expires</span><b>{% if current_pass %}{{ current_pass.expires_at|date:"M j, Y" }}{% else %}—{% endif %}</b></div>
+      <div class="fact"><span>Total paid</span><b>${{ total_paid|floatformat:2 }}</b></div>
+    </div>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:30px">
+      <h2 style="font-size:clamp(32px,4vw,48px)">Sourcing orders</h2>
+      <a href="{% url 'support:chat' %}" class="btn btn-ghost">💬 Message us</a>
+      <a href="{% url 'sourcing:new_request' %}" class="btn btn-red">New request · ${{ SOURCING_FEE|floatformat:0 }} <span class="arrow">→</span></a>
+    </div>
+    {% if requests %}
+    <div class="card table-wrap" data-reveal style="padding:20px 24px">
+      <table class="table">
+        <thead><tr><th>Ref</th><th>Product</th><th>Qty</th><th>Ship to</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        {% for r in requests %}
+          <tr>
+            <td class="muted">{{ r.reference }}</td>
+            <td><b>{{ r.title }}</b>{% if r.market %}<br><small class="muted">{{ r.market.name }}</small>{% endif %}</td>
+            <td>{{ r.quantity }}</td>
+            <td>{{ r.destination }}<br><small class="muted">{{ r.get_shipping_method_display|truncatechars:28 }}</small></td>
+            <td><span class="status {{ r.status }}">{{ r.get_status_display }}</span></td>
+            <td><a class="link" href="{{ r.get_absolute_url }}">{% if r.is_paid %}View{% else %}Pay ${{ r.fee|floatformat:0 }}{% endif %} →</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="card empty" data-reveal><h3>No sourcing orders yet.</h3><p>Tell us what you need and an agent goes to market for you.</p></div>
+    {% endif %}
+    <div class="section-head" style="margin:70px 0 30px">
+      <h2 style="font-size:clamp(32px,4vw,48px)">Services &amp; bookings</h2>
+      <a href="{% url 'travel:service_list' %}" class="btn btn-ghost">Book a service <span class="arrow">→</span></a>
+    </div>
+    {% if service_orders %}
+    <div class="card table-wrap" data-reveal style="padding:20px 24px">
+      <table class="table">
+        <thead><tr><th>Service</th><th>City</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for o in service_orders %}
+          <tr>
+            <td><b>{{ o.service.name }}</b>{% if o.quantity > 1 %} × {{ o.quantity }}{% endif %}{% if o.staff_notes %}<br><small class="muted">{{ o.staff_notes|truncatechars:90 }}</small>{% endif %}</td>
+            <td>{{ o.city|default:"—" }}</td>
+            <td>{{ o.date|date:"M j, Y" }}</td>
+            <td>${{ o.amount|floatformat:0 }}</td>
+            <td><span class="status {% if o.paid_at %}quoted{% else %}awaiting_payment{% endif %}">{{ o.get_status_display }}</span></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="muted">No services booked yet: interpreters, inspections, airport pickups and more.</p>
+    {% endif %}
+
+    <div class="split" style="margin-top:70px;align-items:start">
+      <div>
+        <h2 style="font-size:clamp(28px,3.4vw,40px);margin-bottom:24px">Trip plans</h2>
+        {% for t in trip_plans %}
+          <a class="market-row" href="{{ t.get_absolute_url }}" style="margin-bottom:10px"><div><b>{{ t.city.name }} <span class="zh" style="color:var(--gold)">{{ t.city.name_zh }}</span></b><small>{{ t.arrival|date:"M j, Y" }} · {{ t.nights }} nights · {{ t.guests }} guest{{ t.guests|pluralize }}</small></div><div class="where">Open →</div></a>
+        {% empty %}<p class="muted">No trips yet. <a class="link" href="{% url 'travel:trip_planner' %}">Plan one</a>.</p>{% endfor %}
+      </div>
+      <div>
+        <h2 style="font-size:clamp(28px,3.4vw,40px);margin-bottom:24px">Saved markets</h2>
+        {% for f in favorites %}
+          <a class="market-row" href="{{ f.market.get_absolute_url }}" style="margin-bottom:10px">{% include "partials/media.html" with obj=f.market zh=f.market.name_zh %}<div><b>{{ f.market.name }}</b><small>{{ f.market.city }}</small></div></a>
+        {% empty %}<p class="muted">Tap ♡ on any market to save it here.</p>{% endfor %}
+      </div>
+    </div>
+
+    {% if not current_pass and not user.is_staff %}
+    <div class="card" style="margin-top:30px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap" data-reveal>
+      <div><h3>Visiting China yourself?</h3><p class="muted" style="margin:6px 0 0">A Location Pass unlocks every market's address, map and insider tips.</p></div>
+      <a href="{% url 'sourcing:pricing' %}" class="btn btn-ghost">See passes <span class="arrow">→</span></a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "hub/base.html" %}
+{% block title %}{{ customer.get_full_name|default:customer.username }}{% endblock %}
+{% block heading %}<small><a href="{% url 'hub:customers' %}">← Customers</a></small>{{ customer.get_full_name|default:customer.username }}{% endblock %}
+{% block content %}
+<div class="hub-kpis">
+  <div class="hub-kpi"><span>Total paid</span><b>${{ paid|floatformat:0 }}</b><small>since {{ customer.date_joined|date:"M Y" }}</small></div>
+  <div class="hub-kpi"><span>Sourcing orders</span><b>{{ orders|length }}</b></div>
+  <div class="hub-kpi"><span>Service bookings</span><b>{{ services|length }}</b></div>
+  <div class="hub-kpi"><span>Last seen</span><b style="font-size:24px">{{ customer.last_login|date:"M j"|default:"—" }}</b><small>{{ customer.email|default:"no e-mail" }}{% if phone %} · {{ phone }}{% endif %}</small></div>
+</div>
+<div class="hub-grid two" style="align-items:start">
+  <div style="display:grid;gap:20px">
+    <section class="hub-card">
+      <h2>Messages {% if conv %}<a href="{% url 'support:inbox_thread' conv.pk %}">Full chat →</a>{% endif %}</h2>
+      {% if recent_messages %}
+        <div class="hub-msgs">{% for m in recent_messages %}
+          <div class="chat-msg {% if m.from_staff %}mine{% else %}theirs{% endif %}"><div class="chat-bubble">{% if m.body %}<div class="chat-text">{{ m.body }}</div>{% endif %}{% if m.attachment %}<a class="chat-file" href="{{ m.attachment.url }}" target="_blank">📎 attachment</a>{% endif %}<div class="chat-time">{{ m.created|date:"M j, H:i" }}</div></div></div>
+        {% endfor %}</div>
+      {% else %}<p class="hub-empty">No messages yet. Start the conversation below.</p>{% endif %}
+      {% include "hub/_compose.html" with prefill="" %}
+    </section>
+    <section class="hub-card hub-table-wrap">
+      <h2>Sourcing orders</h2>
+      <table class="hub-table"><tbody>
+      {% for o in orders %}<tr><td><a class="link" href="{% url 'hub:order_detail' o.reference %}">{{ o.reference }}</a></td><td>{{ o.title }}</td><td><span class="status {{ o.status }}">{{ o.get_status_display }}</span></td><td class="hub-muted">{{ o.created|date:"M j" }}</td></tr>
+      {% empty %}<tr><td class="hub-empty">None.</td></tr>{% endfor %}
+      </tbody></table>
+    </section>
+    <section class="hub-card hub-table-wrap">
+      <h2>Service bookings</h2>
+      <table class="hub-table"><tbody>
+      {% for s in services %}<tr><td><a class="link" href="{% url 'hub:service_order_detail' s.pk %}">{{ s.service.name }}</a></td><td>{{ s.date|date:"M j" }}</td><td>${{ s.amount|floatformat:0 }}</td><td>{{ s.get_status_display }}</td></tr>
+      {% empty %}<tr><td class="hub-empty">None.</td></tr>{% endfor %}
+      </tbody></table>
+    </section>
+  </div>
+  <aside style="display:grid;gap:20px">
+    <section class="hub-card">
+      <h2>Location Pass</h2>
+      {% for p in passes %}<div class="hub-list-item"><span class="grow"><b>{{ p.plan.name }}</b><small>{{ p.starts_at|date:"M j" }} → {{ p.expires_at|date:"M j, Y" }}</small></span>{% if p.starts_at <= now and p.expires_at > now %}<span class="hub-pill good">Active</span>{% elif p.starts_at > now %}<span class="hub-pill gold">Queued</span>{% else %}<span class="hub-muted">Expired</span>{% endif %}</div>
+      {% empty %}<p class="hub-empty">No pass yet.</p>{% endfor %}
+      <form method="post" style="margin-top:14px;display:grid;gap:10px">{% csrf_token %}
+        <div class="field"><label>Give a pass</label>{{ grant.plan }}</div>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13.5px">{{ grant.paid_offline }} {{ grant.paid_offline.label }}</label>
+        <button class="btn btn-ghost btn-sm" name="grant" value="1">Give pass</button>
+      </form>
+    </section>
+    <section class="hub-card">
+      <h2>Payments</h2>
+      {% for p in payments %}<div class="hub-list-item"><span class="grow">{{ p.description|truncatechars:40 }}<small>{{ p.created|date:"M j, Y" }} · {{ p.provider }}</small></span><b>${{ p.amount|floatformat:0 }}</b>{% if p.status == "paid" %}<span class="hub-pill good">Paid</span>{% else %}<span class="hub-muted">{{ p.get_status_display }}</span>{% endif %}</div>
+      {% empty %}<p class="hub-empty">No payments.</p>{% endfor %}
+    </section>
+    <section class="hub-card">
+      <h2>Interests</h2>
+      {% for t in trips %}<div class="hub-list-item"><span class="grow">Trip to {{ t.city }}<small>{{ t.arrival|date:"M j" }} · {{ t.nights }} nights</small></span></div>{% endfor %}
+      {% for f in favorites %}<div class="hub-list-item"><span class="grow">♥ {{ f.market.name }}<small>{{ f.market.city }}</small></span></div>{% endfor %}
+      {% if not trips and not favorites %}<p class="hub-empty">No saved trips or markets.</p>{% endif %}
+      <p style="margin:14px 0 0"><a class="link" href="{% url 'admin:auth_user_change' customer.pk %}">Edit account (password, staff access) →</a></p>
+    </section>
+  </aside>
+</div>
+{% endblock %}

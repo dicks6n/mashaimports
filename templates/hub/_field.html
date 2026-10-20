@@ -1,0 +1,18 @@
+<div class="field{% if f.widget_type == 'textarea' or f.widget_type == 'checkboxselectmultiple' or f.widget_type == 'clearablefile' %} wide{% endif %}">
+  {% if f.widget_type == 'checkbox' %}
+    <label class="check-row">{{ f }} {{ f.label }}</label>
+  {% elif f.widget_type == 'checkboxselectmultiple' %}
+    <label>{{ f.label }}</label>
+    {% if f.field.choices|length > 12 %}<input class="hub-checks-filter" type="search" placeholder="Filter {{ f.label|lower }}…" data-filter-checks>{% endif %}
+    <div class="hub-checks">{% for c in f %}<label>{{ c.tag }} {{ c.choice_label }}</label>{% endfor %}</div>
+  {% elif f.widget_type == 'clearablefile' %}
+    <label for="{{ f.id_for_label }}">{{ f.label }}</label>
+    {% if f.value %}<div class="hub-preview"><img src="{{ f.value.url }}" alt=""><span class="hub-muted" style="font-size:13px">Current photo. Choose a new file to replace it, or tick "Clear" to remove it.</span></div>{% endif %}
+    {{ f }}
+  {% else %}
+    <label for="{{ f.id_for_label }}">{{ f.label }}</label>
+    {{ f }}
+  {% endif %}
+  {% if f.help_text %}<div class="help">{{ f.help_text|safe }}</div>{% endif %}
+  {{ f.errors }}
+</div>

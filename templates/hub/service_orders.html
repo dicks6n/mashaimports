@@ -1,0 +1,25 @@
+{% extends "hub/base.html" %}
+{% block title %}Service bookings{% endblock %}
+{% block heading %}<small>Business</small>Service bookings{% endblock %}
+{% block content %}
+<div class="hub-tabs">{% for k, label, n in tabs %}<a href="?status={{ k }}" class="{% if k == status %}on{% endif %}">{{ label }}<span>{{ n }}</span></a>{% endfor %}</div>
+<div class="hub-card hub-table-wrap" style="padding:8px 14px">
+  <table class="hub-table">
+    <thead><tr><th>Service</th><th>Customer</th><th>Where / when</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for o in page %}
+      <tr data-href="{% url 'hub:service_order_detail' o.pk %}">
+        <td><b>{{ o.service.name }}</b>{% if o.quantity > 1 %}<small>× {{ o.quantity }}</small>{% endif %}</td>
+        <td>{{ o.user.get_full_name|default:o.user.username }}<small>{{ o.phone }}</small></td>
+        <td>{{ o.city|default:"—" }}<small>{{ o.date|date:"D, M j" }}{% if o.end_date %} → {{ o.end_date|date:"M j" }}{% endif %}</small></td>
+        <td>${{ o.amount|floatformat:0 }}</td>
+        <td><span class="status {% if o.paid_at %}quoted{% else %}awaiting_payment{% endif %}">{{ o.get_status_display }}</span></td>
+        <td class="act"><a class="btn btn-ghost btn-sm" href="{% url 'hub:service_order_detail' o.pk %}">Open</a></td>
+      </tr>
+    {% empty %}<tr><td colspan="6" class="hub-empty">No bookings here.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% with querystring="status="|add:status %}{% include "hub/_pager.html" %}{% endwith %}
+{% endblock %}
+{% block scripts %}<script>document.querySelectorAll("tr[data-href]").forEach((tr) => tr.addEventListener("click", (e) => { if (!e.target.closest("a,button")) location.href = tr.dataset.href; }));</script>{% endblock %}

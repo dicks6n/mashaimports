@@ -1,0 +1,42 @@
+{% extends "hub/base.html" %}
+{% block title %}{{ res.title }}{% endblock %}
+{% block heading %}<small>Catalogue</small>{{ res.title }} <span class="hub-muted" style="font-size:16px">({{ page.paginator.count }})</span>{% endblock %}
+{% block content %}
+<div class="hub-toolbar">
+  <form class="search" method="get">
+    <input name="q" value="{{ q }}" placeholder="Search {{ res.title|lower }}…" aria-label="Search">
+    {% if active_filter %}<input type="hidden" name="f" value="{{ active_filter }}">{% endif %}
+    <button class="btn btn-sm">Search</button>
+  </form>
+  <span class="spacer"></span>
+  <a class="btn btn-red" href="{% url 'hub:resource_add' res.key %}">+ Add {{ res.singular }}</a>
+</div>
+{% if res.filters %}
+<div class="hub-tabs">
+  <a href="?{% if q %}q={{ q|urlencode }}{% endif %}" class="{% if not active_filter %}on{% endif %}">All</a>
+  {% for fkey, f in res.filters.items %}<a href="?f={{ fkey }}{% if q %}&q={{ q|urlencode }}{% endif %}" class="{% if fkey == active_filter %}on{% endif %}">{{ f.0 }}</a>{% endfor %}
+</div>
+{% endif %}
+<div class="hub-card hub-table-wrap" style="padding:8px 14px">
+  <table class="hub-table">
+    <thead><tr>{% for h in headers %}<th>{{ h }}</th>{% endfor %}<th></th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+      <tr data-href="{% url 'hub:resource_edit' res.key row.obj.pk %}">
+        {% for c in row.cells %}<td>{{ c }}</td>{% endfor %}
+        <td class="act">
+          <a class="btn btn-ghost btn-sm" href="{% url 'hub:resource_edit' res.key row.obj.pk %}">Edit</a>
+          <a class="btn btn-danger btn-sm" href="{% url 'hub:resource_delete' res.key row.obj.pk %}" title="Delete">✕</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="{{ headers|length|add:1 }}" class="hub-empty">Nothing found. <a class="link" href="{% url 'hub:resource_add' res.key %}">Add a {{ res.singular }}</a>.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "hub/_pager.html" %}
+{% endblock %}
+{% block scripts %}<script>
+document.querySelectorAll("tr[data-href]").forEach((tr) => tr.addEventListener("click", (e) => { if (!e.target.closest("a,button,input")) location.href = tr.dataset.href; }));
+</script>{% endblock %}

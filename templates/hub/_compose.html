@@ -1,0 +1,10 @@
+<form class="hub-compose" method="post" action="{% url 'hub:send_message' customer.pk %}" enctype="multipart/form-data">{% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <textarea name="body" placeholder="Write a message to {{ customer.first_name|default:customer.username }}… They'll see it in their chat on the website.">{{ prefill }}</textarea>
+  <div class="row">
+    <label class="chat-attach" title="Attach a photo or file">📎<input type="file" name="attachment" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"></label>
+    <button class="btn btn-red btn-sm">Send on website chat ➤</button>
+    {% if whatsapp %}<a class="btn wa-btn btn-sm" href="{{ whatsapp }}" target="_blank" rel="noopener">WhatsApp ↗</a>{% endif %}
+    {% if conv %}<a class="link" style="margin-left:auto;font-size:13px" href="{% url 'support:inbox_thread' conv.pk %}">Open full chat →</a>{% endif %}
+  </div>
+</form>

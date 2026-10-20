@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Sign in — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="wrap" style="max-width:560px">
+    <span class="eyebrow" data-reveal>Welcome back</span>
+    <h1 data-reveal style="font-size:clamp(44px,6vw,76px)">Sign <em>in</em></h1>
+    <form method="post" class="card" data-reveal="scale" style="margin-top:20px">{% csrf_token %}
+      {% if form.non_field_errors %}<ul class="errorlist">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      <div class="form-grid">
+        {% include "partials/field.html" with f=form.username full=1 %}
+        {% include "partials/field.html" with f=form.password full=1 %}
+      </div>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button class="btn btn-block" style="margin-top:26px">Sign in <span class="arrow">→</span></button>
+      <p class="muted" style="text-align:center;margin:20px 0 0">New here? <a class="link" href="{% url 'accounts:signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Create an account</a></p>
+    </form>
+  </div>
+</section>
+{% endblock %}

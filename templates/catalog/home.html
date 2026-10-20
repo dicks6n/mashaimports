@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block content %}
+
+<section class="hero{% if not hero_markets %} no-photo{% endif %}">
+  <div class="hero-slides">
+    {% for m in hero_markets %}
+      <div class="hero-slide" data-zh="{{ m.name_zh }}" data-name="{{ m.name }} · {{ m.city }}">
+        <img src="{{ m.image_src }}" alt="{{ m.name }} building, {{ m.city }}" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="wrap">
+    <span class="eyebrow" data-reveal style="--d:.8s">Shipping &amp; Sourcing from China</span>
+    <h1 data-split>Any product, from the <em>source</em> to your door.</h1>
+    <p class="lead" data-reveal style="--d:1.5s">{{ SITE_NAME }} puts a buying agent inside China's greatest wholesale markets — Yiwu, Guangzhou, Shenzhen and beyond. Tell us what you need; we find it, inspect it and ship it for a flat ${{ SOURCING_FEE|floatformat:0 }} sourcing fee.</p>
+    <form class="search" action="{% url 'catalog:product_list' %}" data-reveal style="--d:1.7s;margin-top:34px">
+      <input name="q" placeholder="Search earbuds, sofas, handbags, porcelain…" aria-label="Search products">
+      <button class="btn">Search <span class="arrow">→</span></button>
+    </form>
+    <div class="hero-cta" data-reveal style="--d:1.9s">
+      <a href="{% url 'sourcing:new_request' %}" class="btn btn-red">Source any product · ${{ SOURCING_FEE|floatformat:0 }} <span class="arrow">→</span></a>
+      <a href="{% url 'catalog:market_list' %}" class="btn btn-ghost">Explore the markets</a>
+    </div>
+  </div>
+  {% if hero_markets %}
+  <div class="hero-caption">
+    <strong data-cap-name></strong><span data-cap-city></span>
+    <div class="hero-dots">{% for m in hero_markets %}<i></i>{% endfor %}</div>
+  </div>
+  {% endif %}
+  <div class="scroll-cue" aria-hidden="true"></div>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    {% for loop in "12" %}{% for m in all_markets %}
+      <div class="marquee-item"><b class="zh">{{ m.name_zh }}</b><span>{{ m.city }}</span></div>
+    {% endfor %}{% endfor %}
+  </div>
+</div>
+
+<section class="section">
+  <div class="wrap">
+    <div class="split" style="align-items:end">
+      <div>
+        <span class="eyebrow" data-reveal>Why {{ SITE_NAME }}</span>
+        <h2 data-reveal style="margin-top:20px">Not a marketplace. <em>Your buying office</em> in China.</h2>
+      </div>
+      <p class="lead" data-reveal style="--d:.15s">Platforms sell you what's listed. We go to the market floor and negotiate with the factory showrooms that supply them, so you get real ex-works prices, honest quality checks and one partner from booth to doorstep.</p>
+    </div>
+    <div class="stats" style="margin-top:70px" data-reveal>
+      <div class="stat"><b data-count="{{ stats.markets }}">0</b><span>Wholesale markets</span></div>
+      <div class="stat"><b data-count="{{ province_count }}">0</b><span>Provinces</span></div>
+      <div class="stat"><b data-count="{{ city_count }}">0</b><span>Trading cities</span></div>
+      <div class="stat"><b>${{ SOURCING_FEE|floatformat:0 }}</b><span>Flat sourcing fee</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <div><span class="eyebrow" data-reveal>The markets</span><h2 data-reveal>Where China <em>trades</em>.</h2></div>
+      <a href="{% url 'catalog:market_list' %}" class="btn btn-ghost" data-reveal>All {{ stats.markets }} markets <span class="arrow">→</span></a>
+    </div>
+    <div class="market-grid" data-stagger>
+      {% for m in featured_markets %}{% include "partials/market_card.html" %}{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <div><span class="eyebrow" data-reveal>Categories</span><h2 data-reveal>Anything you can <em>imagine</em>.</h2></div>
+      <p class="lead" data-reveal style="max-width:42ch">Can't see your product? We source anything — just describe it and we'll find the market that makes it.</p>
+    </div>
+    <div class="cat-grid" data-stagger>
+      {% for c in categories %}
+        <a href="{{ c.get_absolute_url }}" class="cat">
+          {% include "partials/media.html" with obj=c %}
+          <span class="num">{{ forloop.counter|stringformat:"02d" }}</span>
+          <h3>{{ c.name }}</h3>
+          <small>{{ c.product_count }} product line{{ c.product_count|pluralize }}</small>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <div><span class="eyebrow" data-reveal>Trending sourcing</span><h2 data-reveal>Linked to the <em>market</em> that makes it.</h2></div>
+      <a href="{% url 'catalog:product_list' %}" class="btn btn-ghost" data-reveal>All products <span class="arrow">→</span></a>
+    </div>
+    <div class="product-grid" data-stagger>
+      {% for p in featured_products %}{% include "partials/product_card.html" %}{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <div><span class="eyebrow" data-reveal>Travel to China</span><h2 data-reveal>Fly in. We handle <em>the rest</em>.</h2></div>
+      <p class="lead" data-reveal style="max-width:44ch">Plan a buying trip in minutes: markets day by day, hotels next to them{% if hotel_count %} ({{ hotel_count }} listed){% endif %}, an interpreter at your side and a driver at the airport.</p>
+    </div>
+    <div class="trip-band" data-stagger>
+      <a href="{% url 'travel:trip_planner' %}" class="trip-tile big">
+        <span class="zh">行</span><h3>Trip planner</h3><p>Pick a city, markets and dates and get an itinerary with the closest hotels.</p><span class="go">→</span>
+      </a>
+      <a href="{% url 'travel:hotel_list' %}" class="trip-tile">
+        <span class="zh">宿</span><h3>Hotels near markets</h3><p>Book on Trip.com or Booking.com, or let us book for you.</p><span class="go">→</span>
+      </a>
+      <a href="{% url 'travel:atlas' %}" class="trip-tile">
+        <span class="zh">图</span><h3>Market map</h3><p>{{ stats.markets }} markets across {{ province_count }} provinces.</p><span class="go">→</span>
+      </a>
+    </div>
+    <div class="svc-strip" data-stagger>
+      {% for s in services %}
+        <a href="{{ s.get_absolute_url }}" class="svc-pill"><span class="zh">{{ s.name_zh }}</span>{{ s.name }}<b>${{ s.price|floatformat:0 }}</b></a>
+      {% endfor %}
+      <a href="{% url 'travel:service_list' %}" class="svc-pill more">All services →</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--ink-2);border-block:1px solid var(--line)">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>How it works</span>
+    <h2 data-reveal style="margin:20px 0 70px;max-width:18ch">From a sentence to a <em>shipment</em>.</h2>
+    <div class="steps">
+      <div class="step"><span class="n">01</span><h3>Brief us</h3><p>Describe the product, quantity, target price and destination. Add a photo if you have one.</p></div>
+      <div class="step" style="transition-delay:.15s"><span class="n">02</span><h3>Pay ${{ SOURCING_FEE|floatformat:0 }}</h3><p>One flat sourcing fee. An agent heads to the right market, usually within 48 hours.</p></div>
+      <div class="step" style="transition-delay:.3s"><span class="n">03</span><h3>Get quotes</h3><p>Compared supplier quotes, photos and videos from the booth, plus samples on request.</p></div>
+      <div class="step" style="transition-delay:.45s"><span class="n">04</span><h3>We ship</h3><p>Quality inspection, consolidation, then sea, air or express freight to your door.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:60px">
+      <span class="eyebrow" data-reveal>Two ways to buy</span>
+      <h2 data-reveal style="margin:20px auto 0;max-width:20ch">Send us to source, or <em>go yourself</em>.</h2>
+    </div>
+    <div class="paths">
+      <div class="path featured" data-reveal="scale">
+        <span class="eyebrow">We source for you</span>
+        <div class="big"><sup>$</sup>{{ SOURCING_FEE|floatformat:0 }}</div>
+        <p class="muted">per sourcing request · flat fee</p>
+        <ul><li>An agent visits the market and compares suppliers</li><li>Booth photos, videos and negotiated quotes</li><li>Sample handling and quality inspection</li><li>Shipping arranged to your country</li></ul>
+        <a href="{% url 'sourcing:new_request' %}" class="btn btn-red btn-block">Start a sourcing request <span class="arrow">→</span></a>
+      </div>
+      <div class="path" data-reveal="scale" style="--d:.15s">
+        <span class="eyebrow">Unlock market locations</span>
+        <div class="big"><span style="font-size:.45em;color:var(--muted)">from</span> <sup>$</sup>29</div>
+        <p class="muted">Location Pass · 7, 30 or 365 days</p>
+        <ul><li>Exact address of every market, in English &amp; Chinese</li><li>Live maps with Amap &amp; Google directions</li><li>Nearest metro and transit</li><li>Insider buying tips for each market</li></ul>
+        <a href="{% url 'sourcing:pricing' %}" class="btn btn-ghost btn-block">See Location Passes <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

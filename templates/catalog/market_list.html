@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ total }} wholesale markets in China — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>{{ total }} market{{ total|pluralize }}{% if province %} in {{ province }}{% endif %}</span>
+    <h1 data-reveal>The great <em>markets</em> of China.</h1>
+    <p class="lead" data-reveal>Every market is linked to the products it supplies and the hotels nearby. {% if location_access %}Your Location Pass is active, so exact addresses and maps are unlocked.{% else %}Addresses and maps are reserved for <a class="link" href="{% url 'sourcing:pricing' %}">Location Pass</a> holders, or send us to source for you.{% endif %}</p>
+    <form class="filters" data-reveal>
+      <div class="search" style="flex:2 1 320px;max-width:none">
+        <input name="q" value="{{ q }}" placeholder="Search markets, cities or products…" aria-label="Search markets">
+      </div>
+      <select name="province" aria-label="Province" onchange="this.form.submit()">
+        <option value="">All provinces</option>
+        {% for p in provinces %}<option value="{{ p }}"{% if p == province %} selected{% endif %}>{{ p }}</option>{% endfor %}
+      </select>
+      <select name="city" aria-label="City" onchange="this.form.submit()">
+        <option value="">All cities</option>
+        {% for c in cities %}<option value="{{ c }}"{% if c == city %} selected{% endif %}>{{ c }}</option>{% endfor %}
+      </select>
+      <select name="category" aria-label="Category" onchange="this.form.submit()">
+        <option value="">All categories</option>
+        {% for c in categories %}<option value="{{ c.slug }}"{% if c == active_category %} selected{% endif %}>{{ c.name }} ({{ c.n }})</option>{% endfor %}
+      </select>
+      <button class="btn">Search <span class="arrow">→</span></button>
+    </form>
+    <div class="chips" data-reveal>
+      <a href="{% url 'catalog:market_list' %}" class="chip{% if not q and not city and not province and not active_category %} active{% endif %}">Everything</a>
+      {% for c in categories|slice:":9" %}<a href="?category={{ c.slug }}" class="chip{% if c == active_category %} active{% endif %}">{{ c.name }}</a>{% endfor %}
+      <a href="{% url 'travel:atlas' %}" class="chip" style="border-color:var(--gold);color:var(--gold)">◉ View on map</a>
+    </div>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="wrap">
+    {% if markets %}
+      <div class="market-grid uniform" data-stagger>{% for m in markets %}{% include "partials/market_card.html" %}{% endfor %}</div>
+      {% if page.has_other_pages %}
+      <nav class="pager" aria-label="Pages">
+        {% if page.has_previous %}<a class="chip" href="?{{ querystring }}{% if querystring %}&{% endif %}page={{ page.previous_page_number }}">← Previous</a>{% endif %}
+        <span class="muted">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+        {% if page.has_next %}<a class="chip" href="?{{ querystring }}{% if querystring %}&{% endif %}page={{ page.next_page_number }}">Next →</a>{% endif %}
+      </nav>
+      {% endif %}
+    {% else %}
+      <div class="empty"><h3>No markets match that search.</h3><p>Tell us what you need and we'll find the right market.</p><a href="{% url 'sourcing:new_request' %}" class="btn">Source it for me <span class="arrow">→</span></a></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

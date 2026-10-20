@@ -1,0 +1,14 @@
+<a href="{{ m.get_absolute_url }}" class="market-card" data-tilt>
+  {% include "partials/media.html" with obj=m zh=m.name_zh %}
+  {% if location_access %}<span class="lock-badge open">◉ Location unlocked</span>{% else %}<span class="lock-badge">⚿ Location locked</span>{% endif %}
+  {% if m.pk in favorite_ids %}<span class="fav-badge" title="Saved">♥</span>{% endif %}
+  <div class="body">
+    <div class="zh">{{ m.name_zh }}</div>
+    <h3>{{ m.name }}</h3>
+    <p>{{ m.summary }}</p>
+    <div class="meta">
+      <span>{{ m.city }} · {{ m.specialty|truncatechars:38 }}</span>
+      <span class="go">→</span>
+    </div>
+  </div>
+</a>

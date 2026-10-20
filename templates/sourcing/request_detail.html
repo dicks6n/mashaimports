@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ req.reference }} — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head" style="padding-bottom:20px">
+  <div class="wrap">
+    <a href="{% url 'accounts:dashboard' %}" class="eyebrow" data-reveal>My orders · {{ req.reference }}</a>
+    <h1 data-reveal style="font-size:clamp(40px,5.5vw,76px)">{{ req.title }}</h1>
+    <span class="status {{ req.status }}" data-reveal>{{ req.get_status_display }}</span>
+    {% if req.status != "cancelled" %}
+    <div class="timeline" data-reveal>
+      {% for s in steps %}
+        <div class="t{% if forloop.counter <= req.progress_step %} done{% endif %}{% if forloop.counter == req.progress_step %} now{% endif %}">{{ s }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+<section class="section" style="padding-top:10px">
+  <div class="wrap split">
+    <div class="card" data-reveal>
+      <span class="eyebrow">Your brief</span>
+      <div class="prose" style="margin-top:16px;font-size:16px">{{ req.details|linebreaks }}</div>
+      <div class="terms">
+        <div><span>Quantity</span><b>{{ req.quantity }}</b></div>
+        <div><span>Target price</span><b>{{ req.target_price|default:"—" }}</b></div>
+        <div><span>Ship to</span><b>{{ req.destination }}</b></div>
+      </div>
+      <p class="muted">Freight: {{ req.get_shipping_method_display }}{% if req.product %} · Product: <a class="link" href="{{ req.product.get_absolute_url }}">{{ req.product }}</a>{% endif %}{% if req.market %} · Market: <a class="link" href="{{ req.market.get_absolute_url }}">{{ req.market }}</a>{% endif %}</p>
+      {% if req.reference_image %}<img src="{{ req.reference_image.url }}" alt="Reference" style="border-radius:14px;margin-top:20px;max-height:340px;object-fit:cover">{% endif %}
+    </div>
+    <aside data-reveal="scale">
+      {% if not req.is_paid %}
+        <div class="summary-box">
+          <span class="eyebrow">Payment needed</span>
+          <p class="muted">Your agent starts as soon as the sourcing fee is paid.</p>
+          <div class="total"><span class="muted">Sourcing fee</span><b>${{ req.fee|floatformat:0 }}</b></div>
+          <a href="{% url 'sourcing:pay_request' req.reference %}" class="btn btn-red btn-block" style="margin-top:22px">Pay ${{ req.fee|floatformat:0 }} <span class="arrow">→</span></a>
+        </div>
+      {% else %}
+        <div class="summary-box">
+          <span class="eyebrow">From your agent</span>
+          {% if req.quoted_price %}<div class="line"><span>Quotation</span><b>{{ req.quoted_price }}</b></div>{% endif %}
+          {% if req.shipping_quote %}<div class="line"><span>Shipping</span><b>{{ req.shipping_quote }}</b></div>{% endif %}
+          {% if req.tracking_number %}<div class="line"><span>Tracking</span><b>{{ req.tracking_number }}</b></div>{% endif %}
+          <button class="btn btn-ghost btn-block" style="margin-top:16px" data-open-chat="About order {{ req.reference }}: ">💬 Ask about this order</button>
+          <div style="margin-top:16px">{% if req.agent_notes %}{{ req.agent_notes|linebreaks }}{% else %}<p class="muted">Paid {{ req.paid_at|date:"M j, Y" }}. Your agent will post supplier quotes, photos and a freight plan here — usually within 48 hours.</p>{% endif %}</div>
+        </div>
+      {% endif %}
+    </aside>
+  </div>
+</section>
+{% endblock %}

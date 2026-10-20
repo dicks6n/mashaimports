@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Messages — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head" style="padding-bottom:24px">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Messages</span>
+    <h1 data-reveal style="font-size:clamp(42px,6vw,80px)">Talk to <em>our team</em>.</h1>
+    <p class="lead" data-reveal>Send photos of what you need, ask about prices, shipping or your trip. We reply here and on your dashboard.</p>
+  </div>
+</section>
+<section style="padding-bottom:90px">
+  <div class="wrap">
+    <div class="chat-page" data-chat data-autostart="3000" data-list-url="{% url 'support:messages' %}" data-send-url="{% url 'support:send' %}" data-viewer="customer">
+      <div class="chat-head"><span class="seal">源</span><div><b>{{ SITE_NAME }}</b><small>Usually replies within a few hours</small></div></div>
+      <div class="chat-list" data-chat-list><div class="chat-empty" data-chat-empty><b>Start the conversation</b>Tell us what you're looking for. You can attach photos too.</div></div>
+      <form class="chat-form" data-chat-form>
+        <label class="chat-attach" title="Attach a photo or file">📎<input type="file" data-chat-file accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"></label>
+        <textarea data-chat-input rows="1" placeholder="Type a message…" aria-label="Message"></textarea>
+        <button class="chat-send" type="submit" aria-label="Send">➤</button>
+      </form>
+      <div class="chat-meta"><span data-chat-file-name></span><span data-chat-error hidden></span></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

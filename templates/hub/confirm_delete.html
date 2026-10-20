@@ -1,0 +1,13 @@
+{% extends "hub/base.html" %}
+{% block title %}Delete {{ obj }}{% endblock %}
+{% block heading %}<small><a href="{% url 'hub:resource_list' res.key %}">← {{ res.title }}</a></small>Delete {{ res.singular }}{% endblock %}
+{% block content %}
+<div class="hub-card" style="max-width:620px">
+  <h2>Delete “{{ obj }}”?</h2>
+  <p class="hub-muted">This permanently removes the {{ res.singular }} from the website{% if res.key == "markets" %}, along with its hotel links and customers' saved bookmarks for it{% endif %}. It can't be undone.</p>
+  <form method="post" class="hub-actions" style="margin-top:20px">{% csrf_token %}
+    <button class="btn btn-red">Yes, delete it</button>
+    <a class="btn btn-ghost" href="{% url 'hub:resource_edit' res.key obj.pk %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

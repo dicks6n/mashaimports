@@ -1,0 +1,25 @@
+{% extends "hub/base.html" %}
+{% block title %}{{ job.label }}{% endblock %}
+{% block heading %}<small><a href="{% url 'hub:tools' %}">← Tools</a></small>{{ job.label }}{% endblock %}
+{% block content %}
+<p>Status: <span id="status" class="mi-status {{ job.status }}">{{ job.get_status_display }}</span> <span class="hub-muted">· started {{ job.started|date:"M j, H:i" }}{% if job.started_by %} by {{ job.started_by }}{% endif %}</span></p>
+<pre id="log" class="hub-log">{{ job.log|default:"Starting…" }}</pre>
+<p class="hub-muted" style="font-size:13px">You can leave this page; the job keeps running.</p>
+{% endblock %}
+{% block scripts %}<script>
+(() => {
+  const url = "{% url 'hub:job_log' job.pk %}", logEl = document.getElementById("log"), st = document.getElementById("status");
+  let done = "{{ job.status }}" !== "running";
+  const tick = async () => {
+    if (done) return;
+    try {
+      const d = await (await fetch(url)).json();
+      const atBottom = logEl.scrollTop + logEl.clientHeight >= logEl.scrollHeight - 30;
+      logEl.textContent = d.log || "Starting…"; if (atBottom) logEl.scrollTop = logEl.scrollHeight;
+      st.textContent = d.label; st.className = "mi-status " + d.status; done = d.status !== "running";
+    } catch (e) {}
+    if (!done) setTimeout(tick, 1500);
+  };
+  setTimeout(tick, 800);
+})();
+</script>{% endblock %}

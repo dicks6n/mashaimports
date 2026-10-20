@@ -1,0 +1,29 @@
+{% extends "hub/base.html" %}
+{% block title %}Sourcing orders{% endblock %}
+{% block heading %}<small>Business</small>Sourcing orders{% endblock %}
+{% block content %}
+<div class="hub-toolbar">
+  <form class="search" method="get"><input name="q" value="{{ q }}" placeholder="Reference, product, customer, country…"><input type="hidden" name="status" value="{{ status }}"><button class="btn btn-sm">Search</button></form>
+</div>
+<div class="hub-tabs">{% for k, label, n in tabs %}<a href="?status={{ k }}" class="{% if k == status %}on{% endif %}">{{ label }}<span>{{ n }}</span></a>{% endfor %}</div>
+<div class="hub-card hub-table-wrap" style="padding:8px 14px">
+  <table class="hub-table">
+    <thead><tr><th>Ref</th><th>What</th><th>Customer</th><th>Ship to</th><th>Status</th><th>Created</th><th></th></tr></thead>
+    <tbody>
+    {% for o in page %}
+      <tr data-href="{% url 'hub:order_detail' o.reference %}">
+        <td><span class="hub-pill gold">{{ o.reference }}</span></td>
+        <td><b>{{ o.title }}</b><small>{{ o.quantity }}{% if o.market %} · {{ o.market.name }}{% endif %}</small></td>
+        <td>{{ o.user.get_full_name|default:o.user.username }}<small>{{ o.user.email }}</small></td>
+        <td>{{ o.destination }}<small>{{ o.get_shipping_method_display|truncatechars:26 }}</small></td>
+        <td><span class="status {{ o.status }}">{{ o.get_status_display }}</span></td>
+        <td class="hub-muted">{{ o.created|date:"M j" }}</td>
+        <td class="act"><a class="btn btn-ghost btn-sm" href="{% url 'hub:order_detail' o.reference %}">Open</a></td>
+      </tr>
+    {% empty %}<tr><td colspan="7" class="hub-empty">No orders here.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% with querystring="status="|add:status %}{% include "hub/_pager.html" %}{% endwith %}
+{% endblock %}
+{% block scripts %}<script>document.querySelectorAll("tr[data-href]").forEach((tr) => tr.addEventListener("click", (e) => { if (!e.target.closest("a,button")) location.href = tr.dataset.href; }));</script>{% endblock %}

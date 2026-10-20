@@ -1,0 +1,58 @@
+{% extends "hub/base.html" %}
+{% block title %}{{ order.reference }}{% endblock %}
+{% block heading %}<small><a href="{% url 'hub:orders' %}">← Sourcing orders</a> · {{ order.reference }}</small>{{ order.title }}{% endblock %}
+{% block content %}
+<div class="hub-grid two" style="align-items:start">
+  <div style="display:grid;gap:20px">
+    <section class="hub-card">
+      <h2>Update order <span class="status {{ order.status }}">{{ order.get_status_display }}</span></h2>
+      <form method="post">{% csrf_token %}
+        <div class="hub-form-grid">
+          {% include "hub/_field.html" with f=form.status %}
+          {% include "hub/_field.html" with f=form.quoted_price %}
+          {% include "hub/_field.html" with f=form.shipping_quote %}
+          {% include "hub/_field.html" with f=form.tracking_number %}
+          {% include "hub/_field.html" with f=form.agent_notes %}
+        </div>
+        <div class="hub-actions" style="margin-top:16px;align-items:center">
+          <button class="btn btn-red" name="update" value="1">Save update</button>
+          <label class="check-row" style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" name="notify" checked style="accent-color:var(--cinnabar)"> Also message the customer about this update</label>
+        </div>
+      </form>
+    </section>
+    <section class="hub-card">
+      <h2>Customer's brief</h2>
+      <div class="hub-brief">{{ order.details }}</div>
+      <div class="hub-kv" style="margin-top:16px">
+        <div><span>Quantity</span><b>{{ order.quantity }}</b></div>
+        <div><span>Target price</span><b>{{ order.target_price|default:"—" }}</b></div>
+        <div><span>Ship to</span><b>{{ order.destination }}</b></div>
+        <div><span>Freight</span><b>{{ order.get_shipping_method_display }}</b></div>
+        {% if order.product %}<div><span>Product</span><b><a class="link" href="{% url 'hub:resource_edit' 'products' order.product.pk %}">{{ order.product }}</a></b></div>{% endif %}
+        {% if order.market %}<div><span>Market</span><b><a class="link" href="{% url 'hub:resource_edit' 'markets' order.market.pk %}">{{ order.market }}</a></b></div>{% endif %}
+      </div>
+      {% if order.reference_image %}<a href="{{ order.reference_image.url }}" target="_blank"><img src="{{ order.reference_image.url }}" alt="Reference" style="margin-top:16px;border-radius:12px;max-height:320px;object-fit:cover"></a>{% endif %}
+    </section>
+  </div>
+  <aside style="display:grid;gap:20px;position:sticky;top:90px">
+    <section class="hub-card">
+      <h2>Payment</h2>
+      <div class="hub-kv">
+        <div><span>Sourcing fee</span><b>${{ order.fee|floatformat:2 }}</b></div>
+        <div><span>Status</span><b>{% if order.is_paid %}<span class="hub-pill good">Paid {{ order.paid_at|date:"M j" }}</span>{% else %}<span class="hub-pill bad">Unpaid</span>{% endif %}</b></div>
+      </div>
+      {% if not order.is_paid %}
+        <form method="post" action="{% url 'hub:order_mark_paid' order.reference %}" style="margin-top:14px" onsubmit="return confirm('Record an offline payment of ${{ order.fee }} for this order?')">{% csrf_token %}
+          <button class="btn btn-ghost btn-sm btn-block">Customer paid offline → mark as paid</button>
+        </form>
+      {% endif %}
+    </section>
+    <section class="hub-card">
+      <h2>Customer <a href="{% url 'hub:customer_detail' customer.pk %}">Profile →</a></h2>
+      <div class="hub-kv"><div><span>Name</span><b>{{ customer.get_full_name|default:customer.username }}</b></div><div><span>E-mail</span><b>{{ customer.email|default:"—" }}</b></div></div>
+      <h2 style="font-size:19px;margin-top:20px">Message the customer</h2>
+      {% include "hub/_compose.html" with prefill="" conv=None %}
+    </section>
+  </aside>
+</div>
+{% endblock %}

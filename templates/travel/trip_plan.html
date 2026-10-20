@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Your {{ city.name }} buying trip — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head" style="padding-bottom:20px">
+  <div class="wrap">
+    <a href="{% url 'travel:trip_planner' %}" class="eyebrow" data-reveal>Trip planner</a>
+    <h1 data-reveal style="font-size:clamp(42px,6vw,84px)"><span class="zh" style="color:var(--gold)">{{ city.name_zh }}</span> {{ city.name }}, <em>{{ nights }} night{{ nights|pluralize }}</em></h1>
+    <div class="facts" data-reveal>
+      <div class="fact"><span>Arrive</span><b>{{ arrival|date:"D, M j" }}</b></div>
+      <div class="fact"><span>Depart</span><b>{{ checkout|date:"D, M j" }}</b></div>
+      <div class="fact"><span>Travellers</span><b>{{ guests }}</b></div>
+      <div class="fact"><span>Markets</span><b>{{ markets|length }}</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:30px">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow" data-reveal>Itinerary</span>
+      <div class="itinerary" style="margin-top:26px">
+        {% if nights > 1 %}
+        <div class="day" data-reveal><div class="d"><b>{{ arrival|date:"j" }}</b>{{ arrival|date:"M" }}</div><div><h3>Arrive &amp; check in</h3><p class="muted">Get a local SIM or eSIM, install Alipay or WeChat Pay, and rest up for the markets.</p></div></div>
+        {% endif %}
+        {% for day in days %}
+          <div class="day" data-reveal>
+            <div class="d"><b>{{ day.date|date:"j" }}</b>{{ day.date|date:"M" }}</div>
+            <div>
+              <h3>Day {{ forloop.counter }}: market day</h3>
+              {% for m in day.markets %}
+                <a class="market-row" href="{{ m.get_absolute_url }}" style="margin-top:12px">
+                  {% include "partials/media.html" with obj=m zh=m.name_zh %}
+                  <div><b>{{ m.name }}</b><small class="zh">{{ m.name_zh }}</small> <small>· {{ m.opening_hours|default:m.specialty }}</small></div>
+                </a>
+              {% empty %}
+                <p class="muted">Free day: revisit favourite stalls, check samples or visit a factory.</p>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+        <div class="day" data-reveal><div class="d"><b>{{ checkout|date:"j" }}</b>{{ checkout|date:"M" }}</div><div><h3>Check out &amp; depart</h3><p class="muted">Hand your orders to us for inspection, consolidation and shipping.</p></div></div>
+      </div>
+      {% if not location_access %}
+        <div class="tip" style="margin-top:30px">Market addresses, maps and taxi directions are unlocked with a <a class="link" href="{% url 'sourcing:pricing' %}">Location Pass</a>. You'll want it for this trip.</div>
+      {% endif %}
+    </div>
+
+    <aside data-reveal="scale">
+      <div class="summary-box">
+        <span class="eyebrow">Add to your trip</span>
+        {% for s in services %}
+          <a class="line" href="{% url 'travel:service_book' s.slug %}?city={{ city.slug }}&checkin={{ arrival|date:'Y-m-d' }}&checkout={{ checkout|date:'Y-m-d' }}">
+            <span><span class="zh" style="color:var(--cinnabar)">{{ s.name_zh }}</span> {{ s.name }}</span><b>${{ s.price|floatformat:0 }}</b>
+          </a>
+        {% endfor %}
+        <a href="{% url 'travel:service_list' %}" class="btn btn-ghost btn-block" style="margin-top:20px">All services</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Where to stay</span>
+    <h2 data-reveal style="margin:18px 0 30px;font-size:clamp(34px,4vw,54px)">Hotels closest to <em>your markets</em></h2>
+    {% if hotels %}
+      <div class="hotel-grid" data-stagger>{% for h in hotels %}{% with checkin=arrival %}{% include "partials/hotel_card.html" %}{% endwith %}{% endfor %}</div>
+    {% endif %}
+    <div class="card" style="margin-top:30px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap" data-reveal>
+      <div><h3>Search every hotel in {{ city.name }}</h3><p class="muted" style="margin:6px 0 0">{{ arrival|date:"M j" }} – {{ checkout|date:"M j" }} · {{ guests }} guest{{ guests|pluralize }}</p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="{{ city_links.trip }}" target="_blank" rel="noopener sponsored" class="btn">Trip.com <span class="arrow">↗</span></a>
+        <a href="{{ city_links.booking }}" target="_blank" rel="noopener sponsored" class="btn btn-ghost">Booking.com</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

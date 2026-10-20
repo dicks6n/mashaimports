@@ -1,0 +1,49 @@
+{% extends "hub/base.html" %}
+{% block title %}{{ order.service.name }}{% endblock %}
+{% block heading %}<small><a href="{% url 'hub:service_orders' %}">← Service bookings</a></small>{{ order.service.name }}{% if order.quantity > 1 %} × {{ order.quantity }}{% endif %}{% endblock %}
+{% block content %}
+<div class="hub-grid two" style="align-items:start">
+  <div style="display:grid;gap:20px">
+    <section class="hub-card">
+      <h2>Update booking <span class="status {% if order.paid_at %}quoted{% else %}awaiting_payment{% endif %}">{{ order.get_status_display }}</span></h2>
+      <form method="post">{% csrf_token %}
+        <div class="hub-form-grid">
+          {% include "hub/_field.html" with f=form.status %}
+          {% include "hub/_field.html" with f=form.date %}
+          {% include "hub/_field.html" with f=form.end_date %}
+          {% include "hub/_field.html" with f=form.staff_notes %}
+        </div>
+        <div class="hub-actions" style="margin-top:16px;align-items:center">
+          <button class="btn btn-red" name="update" value="1">Save update</button>
+          <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" name="notify" checked style="accent-color:var(--cinnabar)"> Also message the customer</label>
+        </div>
+      </form>
+    </section>
+    <section class="hub-card">
+      <h2>Booking details</h2>
+      <div class="hub-kv">
+        <div><span>City</span><b>{{ order.city|default:"—" }}</b></div>
+        <div><span>Market</span><b>{{ order.market|default:"—" }}</b></div>
+        {% if order.hotel %}<div><span>Hotel</span><b>{{ order.hotel }}</b></div>{% endif %}
+        <div><span>Guests</span><b>{{ order.guests }}</b></div>
+        <div><span>Phone / WhatsApp</span><b>{{ order.phone }}</b></div>
+      </div>
+      {% if order.details %}<div class="hub-brief" style="margin-top:14px">{{ order.details }}</div>{% endif %}
+    </section>
+  </div>
+  <aside style="display:grid;gap:20px;position:sticky;top:90px">
+    <section class="hub-card">
+      <h2>Payment</h2>
+      <div class="hub-kv"><div><span>Amount</span><b>${{ order.amount|floatformat:2 }}</b></div>
+        <div><span>Status</span><b>{% if order.paid_at %}<span class="hub-pill good">Paid {{ order.paid_at|date:"M j" }}</span>{% else %}<span class="hub-pill bad">Unpaid</span>{% endif %}</b></div></div>
+      {% if not order.paid_at %}
+      <form method="post" action="{% url 'hub:service_order_mark_paid' order.pk %}" style="margin-top:14px" onsubmit="return confirm('Record an offline payment of ${{ order.amount }}?')">{% csrf_token %}<button class="btn btn-ghost btn-sm btn-block">Customer paid offline → mark as paid</button></form>
+      {% endif %}
+    </section>
+    <section class="hub-card">
+      <h2>Customer <a href="{% url 'hub:customer_detail' customer.pk %}">Profile →</a></h2>
+      {% include "hub/_compose.html" with prefill="" conv=None %}
+    </section>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Services for buyers in China — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Services</span>
+    <h1 data-reveal>Your team <em>on the ground</em>.</h1>
+    <p class="lead" data-reveal>Interpreters, factory audits, inspections, airport pickups, visa letters and hotel bookings. Book exactly what you need and pay online.</p>
+  </div>
+</section>
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="ship-grid" data-stagger>
+      {% for s in services %}
+        <a href="{{ s.get_absolute_url }}" class="ship service">
+          <div class="ico">{{ s.name_zh }}</div>
+          <h3>{{ s.name }}</h3>
+          <p>{{ s.summary }}</p>
+          <div class="svc-foot"><span class="price">${{ s.price|floatformat:0 }} <small>{{ s.unit }}</small></span><span class="go">→</span></div>
+        </a>
+      {% endfor %}
+      <a href="{% url 'sourcing:new_request' %}" class="ship service" style="background:linear-gradient(145deg,#23110f,var(--panel))">
+        <div class="ico">源</div>
+        <h3>Product Sourcing</h3>
+        <p>Tell us what you need; an agent finds, compares and negotiates it in the right market.</p>
+        <div class="svc-foot"><span class="price">${{ SOURCING_FEE|floatformat:0 }} <small>per request</small></span><span class="go">→</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

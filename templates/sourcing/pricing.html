@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Location Pass — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head" style="text-align:center">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Location Pass</span>
+    <h1 data-reveal style="margin-inline:auto;max-width:14ch">Walk the markets <em>yourself</em>.</h1>
+    <p class="lead" data-reveal style="margin-inline:auto">Unlock the exact address, Chinese address for taxis, live map, transit directions and insider tips for every market on {{ SITE_NAME }}.</p>
+    {% if current_pass %}<p data-reveal><span class="pass-chip">Your {{ current_pass.plan.name }} is active until {{ current_pass.expires_at|date:"M j, Y" }}</span></p>{% endif %}
+  </div>
+</section>
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="paths" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))" data-stagger>
+      {% for plan in plans %}
+        <div class="path{% if plan.highlighted %} featured{% endif %}">
+          <span class="eyebrow">{{ plan.tagline|default:plan.name }}</span>
+          <h3 style="margin-top:20px">{{ plan.name }}</h3>
+          <div class="big"><sup>$</sup>{{ plan.price|floatformat:0 }}</div>
+          <p class="muted">{{ plan.duration_days }} days of access · one-time payment</p>
+          <ul>{% for f in plan.feature_list %}<li>{{ f }}</li>{% endfor %}</ul>
+          <form method="post" action="{% url 'sourcing:buy_plan' plan.slug %}">{% csrf_token %}
+            <button class="btn {% if plan.highlighted %}btn-red{% else %}btn-ghost{% endif %} btn-block">{% if current_pass %}Extend with{% else %}Get{% endif %} {{ plan.name }} <span class="arrow">→</span></button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="card" style="margin-top:40px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap" data-reveal>
+      <div><h3>Rather not travel?</h3><p class="muted" style="margin:6px 0 0">Send us instead. One flat ${{ SOURCING_FEE|floatformat:0 }} fee per sourcing request, with shipping arranged to your door.</p></div>
+      <a href="{% url 'sourcing:new_request' %}" class="btn btn-red">Source for me · ${{ SOURCING_FEE|floatformat:0 }} <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+{% endblock %}

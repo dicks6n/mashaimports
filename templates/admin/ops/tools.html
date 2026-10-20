@@ -1,0 +1,71 @@
+{% extends "admin/base_site.html" %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Home</a> › Admin tools</div>{% endblock %}
+{% block content %}
+<div class="mi-tools">
+  <p class="mi-lead">Run the site's maintenance jobs from here. Each job runs in the background; you can leave the page and come back to its log.</p>
+
+  {% if not contact_ok %}
+  <div class="mi-alert">⚠ <b>OSM_CONTACT_EMAIL</b> is not set in your <code>.env</code> file. Locations, hotels and photos will refuse to run until you add <code>OSM_CONTACT_EMAIL=your@email.com</code> and restart the server.</div>
+  {% endif %}
+
+  <div class="mi-stats">
+    <div><b>{{ stats.markets }}</b><span>Markets</span></div>
+    <div><b>{{ stats.unverified }}</b><span>Unverified locations</span></div>
+    <div><b>{{ stats.no_photo }}</b><span>Markets without a photo</span></div>
+    <div><b>{{ stats.no_hotels }}</b><span>Markets without hotels</span></div>
+  </div>
+
+  <div class="mi-grid">
+    <form method="post" action="{% url 'admin:ops_jobrun_run' %}" class="mi-card">{% csrf_token %}
+      <input type="hidden" name="tool" value="geocode_markets">
+      <span class="mi-ico">位</span><h2>Refine market locations</h2>
+      <p>Looks up each unverified market on OpenStreetMap and moves its pin if a close match is found.</p>
+      <label>Only markets matching <input name="market" placeholder="e.g. yiwu (optional)"></label>
+      <label class="mi-check"><input type="checkbox" name="dry_run" checked> Preview only (don't save)</label>
+      <button class="mi-btn">Run</button>
+    </form>
+
+    <form method="post" action="{% url 'admin:ops_jobrun_run' %}" class="mi-card">{% csrf_token %}
+      <input type="hidden" name="tool" value="sync_hotels">
+      <span class="mi-ico">宿</span><h2>Find hotels near markets</h2>
+      <p>Pulls real hotels near every market. Hotels your team added by hand are never changed.</p>
+      <label>Only markets matching <input name="market" placeholder="e.g. guangzhou (optional)"></label>
+      <label>Search radius (metres) <input name="radius" type="number" min="300" max="10000" placeholder="2500"></label>
+      <button class="mi-btn">Run</button>
+    </form>
+
+    <form method="post" action="{% url 'admin:ops_jobrun_run' %}" class="mi-card">{% csrf_token %}
+      <input type="hidden" name="tool" value="fetch_images">
+      <span class="mi-ico">图</span><h2>Fetch photos</h2>
+      <p>Downloads real photos (up to 4K) from Wikimedia Commons for items without one.</p>
+      <label>For <select name="only"><option value="">Markets, products &amp; categories</option><option value="markets">Markets only</option><option value="products">Products only</option><option value="categories">Categories only</option></select></label>
+      <label class="mi-check"><input type="checkbox" name="force"> Replace existing photos too</label>
+      <button class="mi-btn">Run</button>
+    </form>
+
+    <form method="post" action="{% url 'admin:ops_jobrun_run' %}" enctype="multipart/form-data" class="mi-card">{% csrf_token %}
+      <input type="hidden" name="tool" value="import_markets">
+      <span class="mi-ico">市</span><h2>Import markets (CSV)</h2>
+      <p>Add or update many markets at once. Columns: name, name_zh, city, province, categories, specialty, summary, address, latitude, longitude…</p>
+      <label>CSV file <input type="file" name="csv_file" accept=".csv" required></label>
+      <button class="mi-btn">Import</button>
+    </form>
+  </div>
+
+  <p class="mi-lead" style="margin-top:8px">Tip: on the <a href="{% url 'admin:catalog_market_changelist' %}">Markets</a> page, tick markets and use the <b>Action</b> menu to find hotels, refine locations or fetch photos for just those.</p>
+
+  <h2 class="mi-h">Recent runs</h2>
+  <table class="mi-table">
+    <thead><tr><th>Job</th><th>Started</th><th>By</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for r in runs %}
+      <tr><td>{{ r.label }}</td><td>{{ r.started|date:"M j, H:i" }}</td><td>{{ r.started_by|default:"—" }}</td>
+          <td><span class="mi-status {{ r.status }}">{{ r.get_status_display }}</span></td>
+          <td><a href="{% url 'admin:ops_jobrun_change' r.pk %}">View log →</a></td></tr>
+    {% empty %}
+      <tr><td colspan="5" class="mi-muted">No jobs run yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

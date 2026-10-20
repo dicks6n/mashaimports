@@ -1,0 +1,33 @@
+{% extends "hub/base.html" %}
+{% block title %}Chat & WhatsApp{% endblock %}
+{% block heading %}<small>Settings</small>Chat &amp; WhatsApp{% endblock %}
+{% block content %}
+<div class="hub-grid two" style="align-items:start">
+  <form method="post" class="hub-card">{% csrf_token %}
+    <h3 style="font:600 11px/1 var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:0 0 16px">WhatsApp</h3>
+    <div class="hub-form-grid">
+      {% include "hub/_field.html" with f=form.whatsapp_number %}
+      {% include "hub/_field.html" with f=form.show_whatsapp %}
+      <div class="wide">{% include "hub/_field.html" with f=form.whatsapp_message %}</div>
+    </div>
+    <h3 style="font:600 11px/1 var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:26px 0 16px">Website chat pop-up</h3>
+    <div class="hub-form-grid">
+      {% include "hub/_field.html" with f=form.chat_enabled %}
+      {% include "hub/_field.html" with f=form.reply_time %}
+      <div class="wide">{% include "hub/_field.html" with f=form.chat_greeting %}</div>
+      {% include "hub/_field.html" with f=form.support_email %}
+    </div>
+    <button class="btn btn-red" style="margin-top:20px">Save settings</button>
+  </form>
+  <aside class="hub-card">
+    <h2>How it looks</h2>
+    <p class="hub-muted" style="font-size:14px">A red chat bubble sits at the bottom-right of every page. Visitors can chat with you on the website (signed in) or tap <b>WhatsApp</b> to message your number straight from their phone, no account needed.</p>
+    {% if site.whatsapp_url %}
+      <p style="margin-top:16px"><a class="btn wa-btn btn-sm" href="{{ site.whatsapp_url }}" target="_blank" rel="noopener">Test your WhatsApp link ↗</a></p>
+    {% else %}
+      <p class="hub-pill bad" style="margin-top:12px">Add your WhatsApp number to switch it on.</p>
+    {% endif %}
+    <p class="hub-muted" style="font-size:13px;margin-top:16px">Website chats arrive in <a class="link" href="{% url 'support:inbox' %}">Chats</a>. WhatsApp chats arrive on your phone's WhatsApp.</p>
+  </aside>
+</div>
+{% endblock %}

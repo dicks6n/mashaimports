@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — sourced from China · {{ SITE_NAME }}{% endblock %}
+{% block description %}{{ product.summary }}{% endblock %}
+{% block content %}
+<section class="p-hero">
+  <div class="wrap p-grid">
+    <div class="clip-reveal">
+      {% include "partials/media.html" with obj=product loading="eager" %}
+      {% if product.image_credit %}<p class="credit" style="margin-top:10px">Photo: {{ product.image_credit }}</p>{% endif %}
+    </div>
+    <div>
+      <a href="{{ product.category.get_absolute_url }}" class="eyebrow" data-reveal>{{ product.category.name }}</a>
+      <h1 data-reveal style="font-size:clamp(42px,5.5vw,76px);margin:20px 0">{{ product.name }}</h1>
+      <p class="lead" data-reveal>{{ product.description|default:product.summary }}</p>
+      <div class="terms" data-reveal>
+        <div><span>Factory price</span><b>${{ product.price_from|floatformat:2 }} – ${{ product.price_to|floatformat:2 }}</b></div>
+        <div><span>Min. order</span><b>{{ product.moq|default:"Flexible" }}</b></div>
+        <div><span>Lead time</span><b>{{ product.lead_time|default:"On quote" }}</b></div>
+      </div>
+      <div style="display:grid;gap:12px" data-reveal>
+        <a href="{% url 'sourcing:new_request' %}?product={{ product.slug }}" class="btn btn-red btn-block">Source this for me · ${{ SOURCING_FEE|floatformat:0 }} <span class="arrow">→</span></a>
+        {% if not location_access %}<a href="{% url 'sourcing:pricing' %}" class="btn btn-ghost btn-block">Unlock market locations · go yourself</a>{% endif %}
+      </div>
+      <p class="muted" style="font-size:13px;margin-top:14px" data-reveal>Prices are indicative ex-works ranges. Your agent negotiates the final price and shipping quote.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:40px">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Where it's sold</span>
+    <h2 data-reveal style="margin:18px 0 36px;font-size:clamp(34px,4vw,54px)">Found in {{ markets|length }} market{{ markets|length|pluralize }}</h2>
+    <div class="market-list" data-stagger>
+      {% for m in markets %}
+        <a href="{{ m.get_absolute_url }}" class="market-row">
+          {% include "partials/media.html" with obj=m zh=m.name_zh %}
+          <div><b>{{ m.name }}</b><small class="zh">{{ m.name_zh }}</small> <small>· {{ m.city }}</small></div>
+          <div class="where">{% if location_access %}<span style="color:#9fd3bf">◉ {{ m.address|truncatechars:42 }}</span>{% else %}⚿ Location locked{% endif %}</div>
+        </a>
+      {% empty %}
+        <p class="muted">Our agents source this across several markets — request it and we'll find the best supplier.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% if related %}
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>More in {{ product.category.name }}</span>
+    <div class="product-grid" data-stagger style="margin-top:36px">{% for p in related %}{% include "partials/product_card.html" %}{% endfor %}</div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

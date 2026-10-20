@@ -1,0 +1,7 @@
+<form class="stay" method="get" {% if anchor %}action="#{{ anchor }}"{% endif %}>
+  {% for k, v in keep.items %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+  <label>Check-in<input type="date" name="checkin" value="{{ checkin|date:'Y-m-d' }}"></label>
+  <label>Check-out<input type="date" name="checkout" value="{{ checkout|date:'Y-m-d' }}"></label>
+  <label>Guests<input type="number" name="guests" min="1" max="8" value="{{ guests }}"></label>
+  <button class="btn">Update prices <span class="arrow">→</span></button>
+</form>

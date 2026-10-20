@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Book {{ service.name }} — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head" style="padding-bottom:30px">
+  <div class="wrap">
+    <a href="{% url 'travel:service_list' %}" class="eyebrow" data-reveal>Services</a>
+    <h1 data-reveal style="font-size:clamp(42px,6vw,84px)"><span class="zh" style="color:var(--cinnabar)">{{ service.name_zh }}</span> {{ service.name }}</h1>
+    <p class="lead" data-reveal>{{ service.summary }}</p>
+  </div>
+</section>
+<section class="section" style="padding-top:10px">
+  <div class="wrap split">
+    <form method="post" class="card" data-reveal>{% csrf_token %}
+      {{ form.non_field_errors }}
+      {% if hotel %}<div class="tip" style="margin-bottom:22px">Hotel: <b>{{ hotel.display_name }}</b>, {{ hotel.city.name }}</div>{% endif %}
+      <div class="form-grid">
+        {% include "partials/field.html" with f=form.city %}
+        {% include "partials/field.html" with f=form.market %}
+        {% include "partials/field.html" with f=form.date %}
+        {% include "partials/field.html" with f=form.end_date %}
+        {% if service.max_quantity > 1 %}{% include "partials/field.html" with f=form.quantity %}{% else %}{{ form.quantity }}{% endif %}
+        {% include "partials/field.html" with f=form.guests %}
+        {% include "partials/field.html" with f=form.phone full=1 %}
+        {% include "partials/field.html" with f=form.details full=1 %}
+      </div>
+      <button class="btn btn-red btn-block" style="margin-top:28px">Continue to payment <span class="arrow">→</span></button>
+    </form>
+    <aside data-reveal="scale" style="position:sticky;top:100px">
+      <div class="summary-box">
+        <span class="eyebrow">Summary</span>
+        <div class="line"><span>{{ service.name }}</span><b>${{ service.price|floatformat:0 }} <small class="muted">{{ service.unit }}</small></b></div>
+        <div class="line"><span>Confirmation</span><span>WhatsApp, within 24h</span></div>
+        <div class="total"><span class="muted">Total</span><b id="svc-total">${{ service.price|floatformat:0 }}</b></div>
+      </div>
+      {% if service.description %}<div class="prose" style="font-size:15px;margin-top:20px">{{ service.description|linebreaks }}</div>{% endif %}
+    </aside>
+  </div>
+</section>
+<script>
+(() => {
+  const qty = document.querySelector("#id_quantity"), out = document.getElementById("svc-total"), price = {{ service.price|stringformat:"s" }};
+  if (qty && qty.type !== "hidden") qty.addEventListener("input", () => { out.textContent = "$" + Math.round(price * Math.max(1, +qty.value || 1)); });
+})();
+</script>
+{% endblock %}

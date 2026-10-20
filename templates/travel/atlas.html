@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Map of China's wholesale markets — {{ SITE_NAME }}{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+{% endblock %}
+{% block content %}
+<section class="page-head" style="padding-bottom:30px">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Market map</span>
+    <h1 data-reveal>{{ total }} markets, <em>one map</em>.</h1>
+    <p class="lead" data-reveal>{% if access %}Every pin is a market. Click one for details, hotels and directions.{% else %}Markets are grouped by city. <a class="link" href="{% url 'sourcing:pricing' %}">Get a Location Pass</a> to see the exact pin for every market.{% endif %}</p>
+  </div>
+</section>
+<section style="padding-bottom:80px">
+  <div class="wrap">
+    <div id="atlas" class="atlas" data-reveal="scale"></div>
+    <div class="chips" style="margin-top:26px" data-reveal>
+      {% for p in provinces %}<a class="chip" href="{% url 'catalog:market_list' %}?province={{ p.province|urlencode }}">{{ p.province }} · {{ p.n }}</a>{% endfor %}
+    </div>
+  </div>
+</section>
+{{ points|json_script:"atlas-points" }}
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(() => {
+  const pts = JSON.parse(document.getElementById("atlas-points").textContent);
+  const access = {{ access|yesno:"true,false" }};
+  const map = L.map("atlas", { scrollWheelZoom: false, zoomControl: true }).setView([30, 112], 5);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    maxZoom: 18,
+  }).addTo(map);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const bounds = [];
+  pts.forEach((p) => {
+    bounds.push([p.lat, p.lon]);
+    if (access) {
+      L.circleMarker([p.lat, p.lon], { radius: 7, color: "#e6cf9d", weight: 1.5, fillColor: "#b8382c", fillOpacity: 0.9 })
+        .addTo(map)
+        .bindPopup(`<b>${esc(p.name)}</b><br><span style="font-size:15px">${esc(p.zh)}</span><br>${esc(p.city)} · ${esc(p.spec)}<br><a href="${p.url}">Open market →</a>`);
+    } else {
+      const r = 10 + Math.min(26, p.count * 2.2);
+      L.circleMarker([p.lat, p.lon], { radius: r, color: "#c9a76a", weight: 1, fillColor: "#c9a76a", fillOpacity: 0.28 })
+        .addTo(map)
+        .bindPopup(`<b>${esc(p.city)}</b>: ${p.count} market${p.count > 1 ? "s" : ""}<br><small>${p.names.map(esc).join("<br>")}</small><br><a href="{% url 'catalog:market_list' %}?city=${encodeURIComponent(p.city)}">View markets →</a>`);
+    }
+  });
+  if (bounds.length) map.fitBounds(bounds, { padding: [30, 30] });
+})();
+</script>
+{% endblock %}

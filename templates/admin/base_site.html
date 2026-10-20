@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ SITE_NAME }} admin{% endblock %}
+{% block extrastyle %}{{ block.super }}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'admin_theme/admin.css' %}">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b8382c'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='serif'%3E%E6%BA%90%3C/text%3E%3C/svg%3E">
+{% endblock %}
+{% block branding %}
+<div id="site-name">
+  <a href="{% url 'admin:index' %}" class="mi-brand">
+    <span class="mi-seal">源</span>
+    <span class="mi-name">{{ SITE_NAME }}<small>Control room</small></span>
+  </a>
+</div>
+{% endblock %}
+{% block usertools %}
+{% if has_permission %}
+<div id="user-tools">
+  <a href="{% url 'hub:dashboard' %}" style="color:var(--mi-gold)">Hub</a>
+  <a href="{% url 'catalog:home' %}">View site</a>
+  <a href="{% url 'support:inbox' %}" class="mi-inbox-link">Inbox{% if support_unread %} <b class="mi-badge">{{ support_unread }}</b>{% endif %}</a>
+  <a href="{% url 'admin:ops_jobrun_changelist' %}">Tools</a>
+  {% if user.has_usable_password %}<a href="{% url 'admin:password_change' %}">Password</a>{% endif %}
+  <form id="logout-form" method="post" action="{% url 'admin:logout' %}">{% csrf_token %}<button type="submit">Log out</button></form>
+</div>
+{% endif %}
+{% endblock %}
+{% block nav-global %}{% endblock %}

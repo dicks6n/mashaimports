@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Source a product — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head" style="padding-bottom:30px">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Sourcing request</span>
+    <h1 data-reveal>Tell us what to <em>find</em>.</h1>
+    <p class="lead" data-reveal>Any product, any market. A buying agent takes your brief to the market floor, compares suppliers and comes back with quotes, photos and a shipping plan.</p>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="wrap split">
+    <form method="post" enctype="multipart/form-data" class="card" data-reveal>
+      {% csrf_token %}
+      {% if product %}<input type="hidden" name="product_id" value="{{ product.pk }}">{% endif %}
+      {% if market %}<input type="hidden" name="market_id" value="{{ market.pk }}">{% endif %}
+      {{ form.non_field_errors }}
+      <div class="form-grid">
+        {% include "partials/field.html" with f=form.title full=1 %}
+        {% include "partials/field.html" with f=form.details full=1 %}
+        {% include "partials/field.html" with f=form.quantity %}
+        {% include "partials/field.html" with f=form.target_price %}
+        {% include "partials/field.html" with f=form.destination %}
+        {% include "partials/field.html" with f=form.shipping_method %}
+        {% include "partials/field.html" with f=form.reference_image full=1 %}
+      </div>
+      <button class="btn btn-red btn-block" style="margin-top:30px">Continue to payment · ${{ SOURCING_FEE|floatformat:2 }} <span class="arrow">→</span></button>
+    </form>
+    <aside data-reveal="scale" style="--d:.15s;position:sticky;top:100px">
+      <div class="summary-box">
+        <span class="eyebrow">Order summary</span>
+        {% if product %}<div class="line"><span>Product</span><b>{{ product.name }}</b></div>{% endif %}
+        {% if market %}<div class="line"><span>Market</span><b>{{ market.name }}</b></div>{% endif %}
+        <div class="line"><span>Market visit &amp; supplier comparison</span><span>✓</span></div>
+        <div class="line"><span>Booth photos &amp; video</span><span>✓</span></div>
+        <div class="line"><span>Price negotiation</span><span>✓</span></div>
+        <div class="line"><span>Shipping plan &amp; freight quote</span><span>✓</span></div>
+        <div class="total"><span class="muted">Sourcing fee</span><b>${{ SOURCING_FEE|floatformat:0 }}</b></div>
+      </div>
+      <p class="muted" style="font-size:13.5px;margin-top:18px">Goods and freight are quoted separately. You only pay for them once you approve the quotation.</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}

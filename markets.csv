@@ -1,0 +1,68 @@
+name,slug,location,description,is_active
+Yiwu International Trade City,yiwu-international-trade-city,"Yiwu, Zhejiang","World's largest small commodity market with 5 districts. Best for toys, stationery, jewelry, hardware, and general merchandise.",TRUE
+Guangzhou Baima Garment Market,guangzhou-baima-garment-market,"Yuexiu District, Guangzhou","One of China's most influential professional clothing markets. High-end and mid-range fashion for women, men, and children.",TRUE
+Huaqiangbei Electronics Market,huaqiangbei-electronics-market,"Futian District, Shenzhen","The 'Silicon Valley of Hardware'. Global hub for electronics, mobile accessories, components, and gadgets.",TRUE
+Shuibei Jewelry Market,shuibei-jewelry-market,"Luohu District, Shenzhen","China's largest jewelry trading center. Gold, jade, diamonds, and silver at wholesale prices.",TRUE
+Zhongda Fabric Market,zhongda-fabric-market,"Haizhu District, Guangzhou","Asia's largest fabric and textile wholesale market. Essential for apparel manufacturing and custom tailoring.",TRUE
+Lecong Furniture Market,lecong-furniture-market,"Shunde District, Foshan","Massive furniture sourcing corridor. One of the largest furniture wholesale hubs in the world.",TRUE
+Guzhen Lighting Market,guzhen-lighting-market,"Guzhen Town, Zhongshan","Dominates China's lighting industry. Best for LED and decorative lighting solutions.",TRUE
+Keqiao Textile Market,keqiao-textile-market,"Keqiao District, Shaoxing","The largest textile trading center in Asia. Specializes in garment, knitted, and printed fabrics.",TRUE
+Chenghai Toy Market,chenghai-toy-market,"Chenghai District, Shantou","China's toy manufacturing capital. Plastic, educational, and electronic toys.",TRUE
+Danyang Glasses Market,danyang-glasses-market,"Danyang, Jiangsu","World's largest production base for eyeglasses and optical frames.",TRUE
+Xintang Denim Market,xintang-denim-market,"Xintang Town, Guangzhou","Produces millions of jeans daily. A must-visit for denim and casual wear sourcing.",TRUE
+Shiling Leather Market,shiling-leather-market,"Huadu District, Guangzhou","China's largest distribution hub for leather goods and luggage materials.",TRUE
+Qingping Medicine Market,qingping-medicine-market,"Liwan District, Guangzhou","Traditional Chinese medicine and herbal wholesale market.",TRUE
+Yide Road Market,yide-road-market,"Yuexiu District, Guangzhou","Famous for seafood, dried goods, toys, gifts, and stationery.",TRUE
+Shahe Clothing Market,shahe-clothing-market,"Tianhe District, Guangzhou","Mass-market affordable clothing in bulk. Best for basics like tank tops and leggings.",TRUE
+Shisanhang Clothing Market,shisanhang-clothing-market,"Liwan District, Guangzhou","Historic wholesale district for mid-range and high-end women's fashion.",TRUE
+Zhanxi Garment Market,zhanxi-garment-market,"Yuexiu District, Guangzhou","Shoes and clothing under one roof. Good for complete outfit sourcing.",TRUE
+Guangzhou Beauty Exchange Center,guangzhou-beauty-exchange-center,"Baiyun District, Guangzhou","Cosmetics and beauty products in bulk. Brands, skincare, and salon supplies.",TRUE
+Hualin Jade Street,hualin-jade-street,"Liwan District, Guangzhou","Jade, jewelry, and souvenir market with a historic atmosphere.",TRUE
+Sungang Stationery & Toys,sungang-stationery-toys,"Luohu District, Shenzhen","Major wholesale market for stationery, toys, and gifts.",TRUE
+Buji Seafood Market,buji-seafood-market,"Longgang District, Shenzhen","One of Shenzhen's liveliest seafood wholesale markets.",TRUE
+Futian Agricultural Market,futian-agricultural-market,"Futian District, Shenzhen","Bustling hub for traditional Chinese medicine and agricultural products.",TRUE
+Longgang Oriental Tea City,longgang-oriental-tea-city,"Longgang District, Shenzhen","A fragrant world of Chinese tea culture for sourcing Pu'er, Oolong, and Longjing.",TRUE
+Nanshan Ceramics Factory,nanshan-ceramics-factory,"Nanshan District, Shenzhen","Fine tableware, teapots, and decorative porcelain.",TRUE
+Bagualing Book Market,bagualing-book-market,"Futian District, Shenzhen","China's publishing industry hub for books on all topics.",TRUE
+ADC Art Design Center,adc-art-design-center,"Shenzhen","Curated selection of furniture, fabrics, lighting, and home accessories.",TRUE
+Bagualing Flower Market,bagualing-flower-market,"Futian District, Shenzhen","Vibrant paradise of fresh flowers and plants.",TRUE
+Yongfu Auto Parts Market,yongfu-auto-parts-market,"Yuexiu District, Guangzhou","Auto electronics, accessories, and selected parts.",TRUE
+Jinjiang Shoe & Textile City,jinjiang-shoe-textile-city,"Jinjiang, Fujian","Soles, fabrics, synthetic materials, and shoe components.",TRUE
+China Ceramics City,china-ceramics-city,"Chancheng District, Foshan","Tiles, sanitary ware, and bathroom products.",TRUE
+Linyi Small Commodities City,linyi-small-commodities-city,"Lanshan District, Linyi","Household goods, stationery, toys, and mixed merchandise.",TRUE
+Haining Leather City,haining-leather-city,"Haining, Zhejiang","China's national hub for leather garments and goods.",TRUE
+Anji Office Chair Market,anji-office-chair-market,"Anji, Zhejiang","The world's manufacturing capital for office chairs.",TRUE
+Kunshan IT Hardware Market,kunshan-it-hardware-market,"Kunshan, Suzhou","Cluster behind a huge share of global laptop assembly.",TRUE
+Xin Da Di Clothing City,xin-dadi-clothing-city,"Guangzhou","Comprehensive clothing wholesale market for men, women, and children.",TRUE
+Kai Rong Du Fashion Center,kai-rong-du-fashion-center,"Guangzhou","One of the largest wholesale markets for clothing and fashion accessories.",TRUE
+Yu Long Fashion Plaza,yu-long-fashion-plaza,"Guangzhou","Major wholesale market for fashion apparel and accessories.",TRUE
+Zhejiang Shengzhou Tie Market,zhejiang-shengzhou-tie-market,"Shengzhou, Zhejiang","The world's largest production base for neckties.",TRUE
+Dongguan Electronics Market,dongguan-electronics-market,"Dongguan, Guangdong","Major hub for electronic components and manufacturing.",TRUE
+Foshan Furniture Market,foshan-furniture-market,"Foshan, Guangdong","Comprehensive furniture and home decor sourcing hub.",TRUE
+Wenzhou Shoe Market,wenzhou-shoe-market,"Wenzhou, Zhejiang","Low MOQ shoes and leather goods.",TRUE
+Nantong Home Textile Market,nantong-home-textile-market,"Nantong, Jiangsu","Bedding, curtains, and home textile products.",TRUE
+Lishui Toys & Stationery,lishui-toys-stationery,"Lishui, Zhejiang","Wholesale market for toys, stationery, and small commodities.",TRUE
+Cixi Home Appliance Market,cixi-home-appliance-market,"Cixi, Zhejiang","Small home appliances and kitchenware.",TRUE
+Yuyao Plastics Market,yuyao-plastics-market,"Yuyao, Zhejiang","Plastic products and molds.",TRUE
+Tangxia Electronics Market,tangxia-electronics-market,"Dongguan, Guangdong","Electronic components and accessories.",TRUE
+Chang'an Hardware Market,chang-an-hardware-market,"Dongguan, Guangdong","Hardware tools and metal products.",TRUE
+Shunde Home Appliance Market,shunde-home-appliance-market,"Foshan, Guangdong","Major production base for home appliances.",TRUE
+Huizhou Shoes & Bags Market,huizhou-shoes-bags-market,"Huizhou, Guangdong","Footwear and bags wholesale.",TRUE
+Jieyang Metalware Market,jieyang-metalware-market,"Jieyang, Guangdong","Metalware and stainless steel products.",TRUE
+Chaozhou Ceramics Market,chaozhou-ceramics-market,"Chaozhou, Guangdong","Ceramics and sanitary ware production hub.",TRUE
+Shantou Toys & Gifts,shantou-toys-gifts,"Shantou, Guangdong","Toys, gifts, and stationery.",TRUE
+Fujian Shoes Market,fujian-shoes-market,"Jinjiang, Fujian","Sportswear and footwear manufacturing hub.",TRUE
+Quanzhou Textile Market,quanzhou-textile-market,"Quanzhou, Fujian","Textiles and apparel.",TRUE
+Xiamen Electronics Market,xiamen-electronics-market,"Xiamen, Fujian","Electronics and components.",TRUE
+Hangzhou Silk Market,hangzhou-silk-market,"Hangzhou, Zhejiang","Silk and high-end fabrics.",TRUE
+Shengzhou Tie & Fabric Market,shengzhou-tie-fabric-market,"Shengzhou, Zhejiang","Ties, fabrics, and accessories.",TRUE
+Yongkang Hardware City,yongkang-hardware-city,"Yongkang, Zhejiang","Hand tools, power tools, and kitchenware.",TRUE
+Yueqing Electrical Market,yueqing-electrical-market,"Yueqing, Zhejiang","Electrical supplies and components.",TRUE
+Lucheng Shoes Market,lucheng-shoes-market,"Wenzhou, Zhejiang","Footwear and leather goods.",TRUE
+Rui'an Auto Parts Market,rui-an-auto-parts-market,"Rui'an, Zhejiang","Auto parts and accessories.",TRUE
+Pinghu Clothing Market,pinghu-clothing-market,"Pinghu, Zhejiang","Affordable clothing wholesale.",TRUE
+Guangzhou Medical Equipment Market,guangzhou-medical-equipment-market,"Guangzhou","Medical devices, diagnostic equipment, and hospital supplies.",TRUE
+Guangzhou Solar Market,guangzhou-solar-market,"Guangzhou","Solar panels, solar lighting, inverters, and solar accessories.",TRUE
+Guangzhou Watch Market,guangzhou-watch-market,"Guangzhou","Watches, watch parts, and accessories at wholesale prices.",TRUE
+Guangzhou Auto Parts Market,guangzhou-auto-parts-market,"Guangzhou","Auto parts, components, and car accessories.",TRUE
+Chengdu Shoes Market,chengdu-shoes-market,"Chengdu, Sichuan","Footwear wholesale hub for women's fashion shoes.",TRUE

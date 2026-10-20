@@ -1,0 +1,52 @@
+{% extends "hub/base.html" %}
+{% block title %}{% if obj %}Edit {{ obj }}{% else %}Add {{ res.singular }}{% endif %}{% endblock %}
+{% block heading %}<small><a href="{% url 'hub:resource_list' res.key %}">← {{ res.title }}</a></small>{% if obj %}{{ obj }}{% else %}New {{ res.singular }}{% endif %}{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="hub-card" style="border-color:rgba(184,56,44,.6);margin-bottom:16px">{{ form.non_field_errors }}</div>{% endif %}
+  {% if form.errors %}<p style="color:#f19a8f;margin-top:0">Please fix the highlighted fields below.</p>{% endif %}
+  <div class="hub-grid two" style="align-items:start">
+    <div>
+      {% for title, fields in fieldsets %}
+        <section class="hub-card hub-fieldset">
+          <h3>{{ title }}</h3>
+          <div class="hub-form-grid">{% for f in fields %}{% include "hub/_field.html" %}{% endfor %}</div>
+        </section>
+      {% endfor %}
+    </div>
+    <aside style="position:sticky;top:90px;display:grid;gap:20px">
+      {% if obj %}
+        {% if obj.image_src %}<div class="hub-card" style="padding:12px"><img src="{{ obj.image_src }}" alt="" style="border-radius:12px;width:100%;aspect-ratio:16/10;object-fit:cover"></div>{% endif %}
+        {% if res.public_url %}<a class="btn btn-ghost" href="{{ obj.get_absolute_url }}" target="_blank" rel="noopener">View on website ↗</a>{% endif %}
+        {% if res.key == "markets" %}
+        <div class="hub-card">
+          <h2 style="font-size:20px">Tools for this market</h2>
+          <form method="post" action="{% url 'hub:market_tool' obj.pk %}" style="display:grid;gap:8px">{% csrf_token %}
+            <button class="btn btn-ghost btn-sm" name="tool" value="sync_hotels">Find hotels nearby</button>
+            <button class="btn btn-ghost btn-sm" name="tool" value="geocode_markets">Refine location</button>
+            <button class="btn btn-ghost btn-sm" name="tool" value="fetch_images">Fetch a new photo</button>
+          </form>
+          <p class="hub-muted" style="font-size:12.5px;margin:10px 0 0">Hotels linked: {{ obj.hotels.count }} · <a class="link" href="{% url 'hub:resource_list' 'hotels' %}?q={{ obj.city|urlencode }}">see hotels in {{ obj.city }}</a></p>
+        </div>
+        {% endif %}
+      {% endif %}
+    </aside>
+  </div>
+  <div class="hub-savebar">
+    <button class="btn btn-red" name="save">Save</button>
+    <button class="btn btn-ghost" name="save_stay">Save &amp; keep editing</button>
+    <button class="btn btn-ghost" name="save_add">Save &amp; add another</button>
+    <span class="spacer"></span>
+    {% if obj %}<a class="btn btn-danger" href="{% url 'hub:resource_delete' res.key obj.pk %}">Delete</a>{% endif %}
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}<script>
+document.querySelectorAll("[data-filter-checks]").forEach((input) => {
+  const box = input.nextElementSibling;
+  input.addEventListener("input", () => {
+    const q = input.value.toLowerCase();
+    box.querySelectorAll("label").forEach((l) => { l.style.display = l.textContent.toLowerCase().includes(q) ? "" : "none"; });
+  });
+});
+</script>{% endblock %}

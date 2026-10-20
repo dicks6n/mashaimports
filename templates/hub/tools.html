@@ -1,0 +1,40 @@
+{% extends "hub/base.html" %}
+{% block title %}Tools{% endblock %}
+{% block heading %}<small>Settings</small>Tools{% endblock %}
+{% block content %}
+{% if not contact_ok %}<div class="hub-card" style="border-color:rgba(184,56,44,.6);margin-bottom:20px">⚠ <b>OSM_CONTACT_EMAIL</b> isn't set in your <code>.env</code> file. Location, hotel and photo tools will refuse to run until you add <code>OSM_CONTACT_EMAIL=your@email.com</code> and restart the server.</div>{% endif %}
+<div class="hub-kpis">
+  <div class="hub-kpi"><span>Markets</span><b>{{ health.markets }}</b></div>
+  <div class="hub-kpi"><a href="{% url 'hub:resource_list' 'markets' %}?f=unverified"><span>Unverified locations</span><b>{{ health.unverified }}</b></a></div>
+  <div class="hub-kpi"><a href="{% url 'hub:resource_list' 'markets' %}?f=nophoto"><span>Without a photo</span><b>{{ health.nophoto }}</b></a></div>
+  <div class="hub-kpi"><a href="{% url 'hub:resource_list' 'markets' %}?f=nohotels"><span>Without hotels</span><b>{{ health.nohotels }}</b></a></div>
+</div>
+<div class="hub-tools">
+  <form method="post" action="{% url 'hub:tool_run' %}" class="hub-card">{% csrf_token %}<input type="hidden" name="tool" value="geocode_markets">
+    <span class="ico">位</span><h3>Refine market locations</h3><p>Looks up unverified markets on OpenStreetMap and moves pins to a close match.</p>
+    <div class="field"><label>Only markets matching</label><input name="market" placeholder="e.g. yiwu (optional)"></div>
+    <label style="display:flex;gap:8px;align-items:center;font-size:13.5px"><input type="checkbox" name="dry_run" checked style="width:auto"> Preview only (don't save)</label>
+    <button class="btn btn-sm">Run</button></form>
+  <form method="post" action="{% url 'hub:tool_run' %}" class="hub-card">{% csrf_token %}<input type="hidden" name="tool" value="sync_hotels">
+    <span class="ico">宿</span><h3>Find hotels near markets</h3><p>Pulls real hotels near each market. Hotels you added yourself are never changed.</p>
+    <div class="field"><label>Only markets matching</label><input name="market" placeholder="e.g. guangzhou (optional)"></div>
+    <div class="field"><label>Radius (metres)</label><input name="radius" type="number" min="300" max="10000" placeholder="2500"></div>
+    <button class="btn btn-sm">Run</button></form>
+  <form method="post" action="{% url 'hub:tool_run' %}" class="hub-card">{% csrf_token %}<input type="hidden" name="tool" value="fetch_images">
+    <span class="ico">图</span><h3>Fetch photos</h3><p>Downloads real photos (up to 4K) from Wikimedia Commons for anything without one.</p>
+    <div class="field"><label>For</label><select name="only"><option value="">Markets, products &amp; categories</option><option value="markets">Markets only</option><option value="products">Products only</option><option value="categories">Categories only</option></select></div>
+    <label style="display:flex;gap:8px;align-items:center;font-size:13.5px"><input type="checkbox" name="force" style="width:auto"> Replace existing photos too</label>
+    <button class="btn btn-sm">Run</button></form>
+  <form method="post" action="{% url 'hub:tool_run' %}" enctype="multipart/form-data" class="hub-card">{% csrf_token %}<input type="hidden" name="tool" value="import_markets">
+    <span class="ico">市</span><h3>Import markets (CSV)</h3><p>Add or update many markets at once from a spreadsheet saved as CSV.</p>
+    <div class="field"><label>CSV file</label><input type="file" name="csv_file" accept=".csv" required></div>
+    <button class="btn btn-sm">Import</button></form>
+</div>
+<h2 class="hub-h2" style="margin-top:30px">Recent runs</h2>
+<div class="hub-card hub-table-wrap" style="padding:8px 14px">
+  <table class="hub-table"><thead><tr><th>Job</th><th>Started</th><th>By</th><th>Status</th><th></th></tr></thead><tbody>
+  {% for r in runs %}<tr><td>{{ r.label }}</td><td class="hub-muted">{{ r.started|date:"M j, H:i" }}</td><td>{{ r.started_by|default:"—" }}</td><td><span class="mi-status {{ r.status }}">{{ r.get_status_display }}</span></td><td class="act"><a class="btn btn-ghost btn-sm" href="{% url 'hub:job' r.pk %}">Log</a></td></tr>
+  {% empty %}<tr><td colspan="5" class="hub-empty">No jobs run yet.</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}

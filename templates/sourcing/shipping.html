@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Shipping from China — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Shipping</span>
+    <h1 data-reveal>From the market floor to <em>your door</em>.</h1>
+    <p class="lead" data-reveal>We consolidate goods from multiple suppliers in our Guangzhou and Yiwu warehouses, inspect them, then ship by the route that fits your budget and timeline.</p>
+    <div class="route" data-reveal>
+      <svg viewBox="0 0 1000 140" preserveAspectRatio="none" aria-hidden="true"><path d="M140 70 C 350 -10, 650 150, 860 70"/></svg>
+      <div class="lbl" style="left:4%"><b>中国</b>China</div>
+      <div class="ship-dot"></div>
+      <div class="lbl" style="right:4%;text-align:right"><b>📍</b>Your door</div>
+    </div>
+  </div>
+</section>
+<section class="section" style="padding-top:20px">
+  <div class="wrap">
+    <div class="ship-grid" data-stagger>
+      <div class="ship"><div class="ico">海</div><h3>Sea · LCL</h3><p>Share a container. The best value for 1–15 m³ shipments.</p><span class="eta">25 – 45 days</span></div>
+      <div class="ship"><div class="ico">船</div><h3>Sea · FCL</h3><p>Your own 20ft or 40ft container, sealed at the warehouse.</p><span class="eta">25 – 40 days</span></div>
+      <div class="ship"><div class="ico">空</div><h3>Air cargo</h3><p>Airport-to-airport or door-to-door for urgent orders over 45 kg.</p><span class="eta">5 – 10 days</span></div>
+      <div class="ship"><div class="ico">快</div><h3>Express</h3><p>DHL, FedEx or UPS for samples and small parcels.</p><span class="eta">3 – 7 days</span></div>
+    </div>
+    <div class="estimator card" style="margin-top:70px" data-reveal>
+      <div>
+        <span class="eyebrow">Freight estimator</span>
+        <h2 style="font-size:clamp(32px,4vw,50px);margin:16px 0 10px">What will it <em>cost</em> to ship?</h2>
+        <p class="muted">Enter your carton size and count. We compare chargeable weight (actual vs. volumetric) for each method. Rates are indicative; your agent quotes exact freight.</p>
+        <div class="form-grid" style="margin-top:24px">
+          <div class="field"><label>Cartons</label><input type="number" id="e-cartons" min="1" value="10"></div>
+          <div class="field"><label>Weight per carton (kg)</label><input type="number" id="e-weight" min="0.1" step="0.1" value="15"></div>
+          <div class="field"><label>Carton L × W × H (cm)</label>
+            <div style="display:flex;gap:8px"><input type="number" id="e-l" value="60" min="1"><input type="number" id="e-w" value="40" min="1"><input type="number" id="e-h" value="40" min="1"></div></div>
+          <div class="field"><label>Totals</label><div id="e-totals" class="muted" style="padding:15px 0">—</div></div>
+        </div>
+      </div>
+      <div id="e-results" class="est-results"></div>
+    </div>
+    {{ rates|json_script:"ship-rates" }}
+    <script>
+    (() => {
+      const rates = JSON.parse(document.getElementById("ship-rates").textContent);
+      const $ = (id) => document.getElementById(id);
+      const calc = () => {
+        const n = Math.max(1, +$("e-cartons").value || 1), kg = (+$("e-weight").value || 0) * n;
+        const cbm = ((+$("e-l").value || 0) * (+$("e-w").value || 0) * (+$("e-h").value || 0)) / 1e6 * n;
+        const volAir = cbm * 167, volExp = cbm * 200;  // standard IATA / courier volumetric factors
+        $("e-totals").textContent = `${kg.toFixed(1)} kg · ${cbm.toFixed(2)} m³`;
+        const rows = Object.entries(rates).map(([k, r]) => {
+          let cost, basis;
+          if (r.per_cbm) { cost = Math.max(r.minimum, cbm * r.per_cbm); basis = `${cbm.toFixed(2)} m³`; }
+          else { const cw = Math.max(kg, k === "air" ? volAir : volExp); cost = Math.max(r.minimum, cw * r.per_kg); basis = `${cw.toFixed(0)} kg chargeable`; }
+          return { label: r.label, cost, basis, days: r.days };
+        });
+        const best = Math.min(...rows.map(r => r.cost));
+        $("e-results").innerHTML = rows.map(r => `
+          <div class="est ${r.cost === best ? "best" : ""}">
+            <span>${r.label}${r.cost === best ? ' <em>· best value</em>' : ""}</span>
+            <b>$${Math.round(r.cost).toLocaleString()}</b>
+            <small>${r.basis} · ${r.days} days</small>
+          </div>`).join("");
+      };
+      document.querySelectorAll(".estimator input").forEach(i => i.addEventListener("input", calc));
+      calc();
+    })();
+    </script>
+    <div class="steps" style="margin-top:90px">
+      <div class="step"><span class="n">01</span><h3>Consolidate</h3><p>Goods from different markets are collected in one warehouse.</p></div>
+      <div class="step" style="transition-delay:.15s"><span class="n">02</span><h3>Inspect</h3><p>Counting, photos and quality checks before anything leaves China.</p></div>
+      <div class="step" style="transition-delay:.3s"><span class="n">03</span><h3>Pack &amp; document</h3><p>Export packing, commercial invoice, packing list and HS codes.</p></div>
+      <div class="step" style="transition-delay:.45s"><span class="n">04</span><h3>Deliver</h3><p>Tracked freight with customs clearance support at destination.</p></div>
+    </div>
+    <div class="card" style="margin-top:80px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap" data-reveal>
+      <div><h3>Shipping is quoted with every sourcing order.</h3><p class="muted" style="margin:6px 0 0">Choose your preferred freight method on the request form and your agent will price it.</p></div>
+      <a href="{% url 'sourcing:new_request' %}" class="btn btn-red">Start a sourcing request <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+{% endblock %}
